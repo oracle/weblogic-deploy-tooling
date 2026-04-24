@@ -441,11 +441,19 @@ var relearn_searchindex = [
   },
   {
     "breadcrumb": "WebLogic Deploy Tooling",
-    "content": "Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.\nSEVERE Messages: 1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC",
-    "description": "Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.",
+    "content": "Changes in Release 4.4.5 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes #1874 - Added support for production redeployment of applications. #1878 - Added support for variable use within the variables file. #1878 - Added support for April 2026 PSUs. Bug Fixes None\nKnown Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.\nSEVERE Messages: 1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC",
+    "description": "Changes in Release 4.4.5 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes #1874 - Added support for production redeployment of applications. #1878 - Added support for variable use within the variables file. #1878 - Added support for April 2026 PSUs. Bug Fixes None",
     "tags": [],
     "title": "Release Notes",
     "uri": "/weblogic-deploy-tooling/release-notes/index.html"
+  },
+  {
+    "breadcrumb": "WebLogic Deploy Tooling \u003e Release Notes",
+    "content": "Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.\nSEVERE Messages: 1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC",
+    "description": "Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.",
+    "tags": [],
+    "title": "Release 4.4.4",
+    "uri": "/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html"
   },
   {
     "breadcrumb": "WebLogic Deploy Tooling \u003e Release Notes",

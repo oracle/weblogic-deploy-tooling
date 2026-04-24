@@ -5,30 +5,34 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.152.2">
     <meta name="generator" content="Relearn 8.3.0">
-    <meta name="description" content="Changes in Release 4.2.0 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1682 - Added support for discovering built-in security provider data in online mode. This includes DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper user/password credential mappings. As with other discovery features, default values are filtered out and will not appear in the model. By default, discovering users and credential mappings require the use of WDT encryption so that no clear text passwords are stored in the model or variable files. #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was not working with newer versions of WebLogic anyway) and removing version limitations during provisioning. #1682 - Deprecated the -use_encryption command-line argument and replaced it with -passphrase_prompt to make the purpose of the argument clearer. #1682 - Relaxed the JDK 8 requirement to use WDT encryption. Later versions of JDK 7 have the necessary algorithm support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not. #1682 - Used the values of the -admin_user and provided password to populate the domainInfo:/AdminUserName and domainInfo:/AdminPassword fields when discovering security provider data. #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. #1689 - Added the ability to discover the OPSS wallet when running in online mode. #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of WebLogic Kubernetes Operator 3 versions. Added wko3, wko3-dii, and wko3-pv to accommodate users that still require the ability to use these older versions. #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original policy and role expressions as XACML files in the archive file. Bug Fixes #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with older versions of WebLogic Server. #1690 - Fixed a problem with determining the default security realm name that caused it to always be myrealm. #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that does not exist. #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the domainHome attribute in all cases so that the WebLogic Image Tool could populate it when creating the image. This was occurring even in use cases where the WebLogic Image Tool did not have this information. WDT no longer does this and will only include the domainHome in the case where the user has specified it on the command line, or in the kubernetes section of the model. #1698 - Fixed issues with the new messages related to the security provider data discovery features. #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests. #1702 - Fixed a bug in deployment plan discovery for exploded applications. #1703 - Fixed a bug in discovery of domainBin scripts. #1705 - Added missing validation for the WLSUserPasswordCredentialMappings section. #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing. #1707 - Fixed a bug in the handling of the ActiveContextHandlerEntry attribute of an Auditor security provider. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta name="description" content="Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes None
+Bug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Release 4.2.0 :: WebLogic Deploy Tooling">
-    <meta name="twitter:description" content="Changes in Release 4.2.0 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1682 - Added support for discovering built-in security provider data in online mode. This includes DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper user/password credential mappings. As with other discovery features, default values are filtered out and will not appear in the model. By default, discovering users and credential mappings require the use of WDT encryption so that no clear text passwords are stored in the model or variable files. #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was not working with newer versions of WebLogic anyway) and removing version limitations during provisioning. #1682 - Deprecated the -use_encryption command-line argument and replaced it with -passphrase_prompt to make the purpose of the argument clearer. #1682 - Relaxed the JDK 8 requirement to use WDT encryption. Later versions of JDK 7 have the necessary algorithm support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not. #1682 - Used the values of the -admin_user and provided password to populate the domainInfo:/AdminUserName and domainInfo:/AdminPassword fields when discovering security provider data. #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. #1689 - Added the ability to discover the OPSS wallet when running in online mode. #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of WebLogic Kubernetes Operator 3 versions. Added wko3, wko3-dii, and wko3-pv to accommodate users that still require the ability to use these older versions. #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original policy and role expressions as XACML files in the archive file. Bug Fixes #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with older versions of WebLogic Server. #1690 - Fixed a problem with determining the default security realm name that caused it to always be myrealm. #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that does not exist. #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the domainHome attribute in all cases so that the WebLogic Image Tool could populate it when creating the image. This was occurring even in use cases where the WebLogic Image Tool did not have this information. WDT no longer does this and will only include the domainHome in the case where the user has specified it on the command line, or in the kubernetes section of the model. #1698 - Fixed issues with the new messages related to the security provider data discovery features. #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests. #1702 - Fixed a bug in deployment plan discovery for exploded applications. #1703 - Fixed a bug in discovery of domainBin scripts. #1705 - Added missing validation for the WLSUserPasswordCredentialMappings section. #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing. #1707 - Fixed a bug in the handling of the ActiveContextHandlerEntry attribute of an Auditor security provider. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
-    <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html">
+    <meta name="twitter:title" content="Release 4.4.4 :: WebLogic Deploy Tooling">
+    <meta name="twitter:description" content="Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes None
+Bug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html">
     <meta property="og:site_name" content="WebLogic Deploy Tooling">
-    <meta property="og:title" content="Release 4.2.0 :: WebLogic Deploy Tooling">
-    <meta property="og:description" content="Changes in Release 4.2.0 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1682 - Added support for discovering built-in security provider data in online mode. This includes DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper user/password credential mappings. As with other discovery features, default values are filtered out and will not appear in the model. By default, discovering users and credential mappings require the use of WDT encryption so that no clear text passwords are stored in the model or variable files. #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was not working with newer versions of WebLogic anyway) and removing version limitations during provisioning. #1682 - Deprecated the -use_encryption command-line argument and replaced it with -passphrase_prompt to make the purpose of the argument clearer. #1682 - Relaxed the JDK 8 requirement to use WDT encryption. Later versions of JDK 7 have the necessary algorithm support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not. #1682 - Used the values of the -admin_user and provided password to populate the domainInfo:/AdminUserName and domainInfo:/AdminPassword fields when discovering security provider data. #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. #1689 - Added the ability to discover the OPSS wallet when running in online mode. #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of WebLogic Kubernetes Operator 3 versions. Added wko3, wko3-dii, and wko3-pv to accommodate users that still require the ability to use these older versions. #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original policy and role expressions as XACML files in the archive file. Bug Fixes #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with older versions of WebLogic Server. #1690 - Fixed a problem with determining the default security realm name that caused it to always be myrealm. #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that does not exist. #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the domainHome attribute in all cases so that the WebLogic Image Tool could populate it when creating the image. This was occurring even in use cases where the WebLogic Image Tool did not have this information. WDT no longer does this and will only include the domainHome in the case where the user has specified it on the command line, or in the kubernetes section of the model. #1698 - Fixed issues with the new messages related to the security provider data discovery features. #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests. #1702 - Fixed a bug in deployment plan discovery for exploded applications. #1703 - Fixed a bug in discovery of domainBin scripts. #1705 - Added missing validation for the WLSUserPasswordCredentialMappings section. #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing. #1707 - Fixed a bug in the handling of the ActiveContextHandlerEntry attribute of an Auditor security provider. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta property="og:title" content="Release 4.4.4 :: WebLogic Deploy Tooling">
+    <meta property="og:description" content="Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes None
+Bug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Release Notes">
     <meta property="article:published_time" content="2024-01-09T18:27:38-05:00">
     <meta property="article:modified_time" content="2024-01-09T18:27:38-05:00">
-    <meta itemprop="name" content="Release 4.2.0 :: WebLogic Deploy Tooling">
-    <meta itemprop="description" content="Changes in Release 4.2.0 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1682 - Added support for discovering built-in security provider data in online mode. This includes DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper user/password credential mappings. As with other discovery features, default values are filtered out and will not appear in the model. By default, discovering users and credential mappings require the use of WDT encryption so that no clear text passwords are stored in the model or variable files. #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was not working with newer versions of WebLogic anyway) and removing version limitations during provisioning. #1682 - Deprecated the -use_encryption command-line argument and replaced it with -passphrase_prompt to make the purpose of the argument clearer. #1682 - Relaxed the JDK 8 requirement to use WDT encryption. Later versions of JDK 7 have the necessary algorithm support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not. #1682 - Used the values of the -admin_user and provided password to populate the domainInfo:/AdminUserName and domainInfo:/AdminPassword fields when discovering security provider data. #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. #1689 - Added the ability to discover the OPSS wallet when running in online mode. #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of WebLogic Kubernetes Operator 3 versions. Added wko3, wko3-dii, and wko3-pv to accommodate users that still require the ability to use these older versions. #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original policy and role expressions as XACML files in the archive file. Bug Fixes #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with older versions of WebLogic Server. #1690 - Fixed a problem with determining the default security realm name that caused it to always be myrealm. #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that does not exist. #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the domainHome attribute in all cases so that the WebLogic Image Tool could populate it when creating the image. This was occurring even in use cases where the WebLogic Image Tool did not have this information. WDT no longer does this and will only include the domainHome in the case where the user has specified it on the command line, or in the kubernetes section of the model. #1698 - Fixed issues with the new messages related to the security provider data discovery features. #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests. #1702 - Fixed a bug in deployment plan discovery for exploded applications. #1703 - Fixed a bug in discovery of domainBin scripts. #1705 - Added missing validation for the WLSUserPasswordCredentialMappings section. #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing. #1707 - Fixed a bug in the handling of the ActiveContextHandlerEntry attribute of an Auditor security provider. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta itemprop="name" content="Release 4.4.4 :: WebLogic Deploy Tooling">
+    <meta itemprop="description" content="Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes None
+Bug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta itemprop="datePublished" content="2024-01-09T18:27:38-05:00">
     <meta itemprop="dateModified" content="2024-01-09T18:27:38-05:00">
-    <meta itemprop="wordCount" content="710">
-    <title>Release 4.2.0 :: WebLogic Deploy Tooling</title>
+    <meta itemprop="wordCount" content="105">
+    <title>Release 4.4.4 :: WebLogic Deploy Tooling</title>
     <link href="/weblogic-deploy-tooling/images/logo.png?1777001571" rel="icon" type="image/png">
     <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1777001571" rel="stylesheet">
     <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1777001571" defer></script>
@@ -54,7 +58,7 @@ Other Changes #1682 - Added support for discovering built-in security provider d
       window.relearn = window.relearn || {};
       // configuration
       window.relearn.min = `.min`;
-      window.relearn.path='\/release-notes\/release-4.2.0\/index.html';
+      window.relearn.path='\/release-notes\/release-4.4.4\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..\/..';
       window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-deploy-tooling';
@@ -102,7 +106,7 @@ Other Changes #1682 - Added support for discovering built-in security provider d
       window.relearn.markVariant();
     </script>
   </head>
-  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html">
+  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -120,7 +124,7 @@ Other Changes #1682 - Added support for discovering built-in security provider d
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-420">Changes in Release 4.2.0</a></li>
+        <li><a href="#changes-in-release-444">Changes in Release 4.4.4</a></li>
       </ul>
     </li>
   </ul>
@@ -129,14 +133,14 @@ Other Changes #1682 - Added support for discovering built-in security provider d
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/release-notes/index.html"><span itemprop="name">Release Notes</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Release 4.2.0</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/release-notes/index.html"><span itemprop="name">Release Notes</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Release 4.4.4</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
             <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.2.1/index.html" title="Release 4.2.1 (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/index.html" title="Release Notes (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/index.html" title="Release 4.1.1 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.4.3/index.html" title="Release 4.4.3 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
@@ -159,11 +163,11 @@ Other Changes #1682 - Added support for discovering built-in security provider d
 
 
 
-<h1 id="release-420">Release 4.2.0</h1>
+<h1 id="release-444">Release 4.4.4</h1>
 
 
 
-<h3 id="changes-in-release-420">Changes in Release 4.2.0<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<h3 id="changes-in-release-444">Changes in Release 4.4.4<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
 <li>
 
@@ -201,48 +205,10 @@ Known Issues
 <h4 id="major-new-features">Major New Features<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>None</p>
 <h4 id="other-changes">Other Changes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
-<ul>
-<li>#1682 - Added support for discovering built-in security provider data in online mode.  This includes
-DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper
-user/password credential mappings. As with other discovery features, default values are filtered out and will not
-appear in the model.  By default, discovering users and credential mappings require the use of WDT encryption so that
-no clear text passwords are stored in the model or variable files.</li>
-<li>#1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was
-not working with newer versions of WebLogic anyway) and removing version limitations during provisioning.</li>
-<li>#1682 - Deprecated the <code>-use_encryption</code> command-line argument and replaced it with <code>-passphrase_prompt</code> to make the
-purpose of the argument clearer.</li>
-<li>#1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
-support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.</li>
-<li>#1682 - Used the values of the <code>-admin_user</code> and provided password to populate the <code>domainInfo:/AdminUserName</code> and
-<code>domainInfo:/AdminPassword</code> fields when discovering security provider data.</li>
-<li>#1688 - Enhanced variable tokenization support to include passwords in discovered security provider data.</li>
-<li>#1689 - Added the ability to discover the OPSS wallet when running in online mode.</li>
-<li>#1693 - Changed the <code>wko</code>, <code>wko-dii</code> (deprecated), and <code>wko-pv</code> target values to refer to the latest versions instead
-of WebLogic Kubernetes Operator 3 versions.  Added <code>wko3</code>, <code>wko3-dii</code>, and <code>wko3-pv</code> to accommodate users that still
-require the ability to use these older versions.</li>
-<li>#1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model.</li>
-<li>#1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
-policy and role expressions as XACML files in the archive file.</li>
-</ul>
+<p>None</p>
 <h4 id="bug-fixes">Bug Fixes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
-<li>#1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
-older versions of WebLogic Server.</li>
-<li>#1690 - Fixed a problem with determining the default security realm name that caused it to always be <code>myrealm</code>.</li>
-<li>#1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
-does not exist.</li>
-<li>#1695 - Fixed an issue where the WebLogic Kubernetes Operator <code>domain.yaml</code> was including a placeholder for the
-<code>domainHome</code> attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
-This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
-this and will only include the <code>domainHome</code> in the case where the user has specified it on the command line,
-or in the <code>kubernetes</code> section of the model.</li>
-<li>#1698 - Fixed issues with the new messages related to the security provider data discovery features.</li>
-<li>#1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.</li>
-<li>#1702 - Fixed a bug in deployment plan discovery for exploded applications.</li>
-<li>#1703 - Fixed a bug in discovery of <code>domainBin</code> scripts.</li>
-<li>#1705 - Added missing validation for the <code>WLSUserPasswordCredentialMappings</code> section.</li>
-<li>#1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.</li>
-<li>#1707 - Fixed a bug in the handling of the <code>ActiveContextHandlerEntry</code> attribute of an <code>Auditor</code> security provider.</li>
+<li>#1870 - Fixed problem discovering node manager keystores.</li>
 </ul>
 <h4 id="known-issues">Known Issues<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
@@ -262,31 +228,7 @@ Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
 <div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>SEVERE Messages:
 </span></span><span style="display:flex;"><span>        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC</span></span></code></pre></div>
 </li>
-<li>
-<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
-WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
-issue with the SSHJ library WDT is using.  See 
-
-<a href="https://github.com/hierynomus/sshj/issues/929"
-   
-   
-target="_blank" rel="noopener noreferrer"
->
-https://github.com/hierynomus/sshj/issues/929
-</a>
- for more information.</p>
-</li>
 </ul>
-<p>See 
-
-<a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/"
-   
-   
-target="_blank" rel="noopener noreferrer"
->
-https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/
-</a>
- for the current set of known limitations.</p>
 
   <footer class="footline">
   </footer>
@@ -342,7 +284,7 @@ https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitatio
             <li class="" data-nav-url="/weblogic-deploy-tooling/samples/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/developer/index.html"><a class="padding" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
             <li class="parent " data-nav-url="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html"><b> </b>Release 4.4.4</a></li>
+            <li class="active " data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.4/index.html"><b> </b>Release 4.4.4</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.3/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.3/index.html"><b> </b>Release 4.4.3</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><b> </b>Release Notes</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><b> </b>Release 4.4.1</a></li>
@@ -358,7 +300,7 @@ https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitatio
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.3.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.3.1/index.html"><b> </b>Release 4.3.1</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.3.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.3.0/index.html"><b> </b>Release 4.3.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.2.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.2.1/index.html"><b> </b>Release 4.2.1</a></li>
-            <li class="active " data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html"><b> </b>Release 4.2.0</a></li>
+            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.2.0/index.html"><b> </b>Release 4.2.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.1.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.1.1/index.html"><b> </b>Release 4.1.1</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.1.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.1.0/index.html"><b> </b>Release 4.1.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.0.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.0.1/index.html"><b> </b>Release 4.0.1</a></li>
