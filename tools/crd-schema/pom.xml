@@ -16,7 +16,7 @@
     </parent>
 
     <properties>
-        <jackson-version>2.21.2</jackson-version>
+        <jackson-version>2.21.3</jackson-version>
     </properties>
 
     <dependencies>
