@@ -13,28 +13,28 @@
       <link>https://oracle.github.io/weblogic-deploy-tooling/concepts/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/index.html</guid>
-      <description>Concepts Archive FileThe section that discusses the structure and content of the WDT archive file.&#xA;Metadata ModelThe section that discusses the high-level concepts of the WDT model.</description>
+      <description>Concepts Archive File The section that discusses the structure and content of the WDT archive file.&#xA;Metadata Model The section that discusses the high-level concepts of the WDT model.</description>
     </item>
     <item>
       <title>User Guide</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/index.html</guid>
-      <description>User Guide The User Guide provides detailed information about installing and using WebLogic Deploy Tools.&#xA;Install WDTThis section describes how to download and install WDT and what versions of Java and WebLogic Server it supports.&#xA;WDT ToolsThis section covers the tools that make up WDT.&#xA;Target environmentsThis section covers advanced features to target your WDT model to a specific environment.</description>
+      <description>User Guide The User Guide provides detailed information about installing and using WebLogic Deploy Tools.&#xA;Install WDT This section describes how to download and install WDT and what versions of Java and WebLogic Server it supports.&#xA;WDT Tools This section covers the tools that make up WDT.</description>
     </item>
     <item>
       <title>Samples</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/index.html</guid>
-      <description>These typical use case scenarios show you how some common configurations can be represented in the model.&#xA;Customizing the Administration ServerConfigure the Administration Server using a domain model.&#xA;Modeling a configured clusterA domain model with a typical configuration for a configured cluster.&#xA;Modeling a WTC configurationA domain model with a typical configuration for a WebLogic Tuxedo Connector.&#xA;Modeling a JDBC data sourceA domain model with a typical configuration for a JDBC data source.</description>
+      <description>These typical use case scenarios show you how some common configurations can be represented in the model.&#xA;Customizing the Administration Server Configure the Administration Server using a domain model.&#xA;Modeling a configured cluster A domain model with a typical configuration for a configured cluster.</description>
     </item>
     <item>
       <title>Developer Guide</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/developer/index.html</link>
       <pubDate>Fri, 22 Feb 2019 15:27:54 -0500</pubDate>
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/index.html</guid>
-      <description>Developer Guide The Developer Guide provides information for developers who want to understand or contribute to the code.&#xA;Project structureDescribes the WDT project structure.&#xA;Feature implementationHow specific features are implemented.&#xA;Alias definitionsHow the WDT aliases work.&#xA;Build WebLogic Deploy ToolingHow to build WDT from source.&#xA;Building CRD schemasHow to build the CRD schemas&#xA;WDT project release processHow releases are created from WDT source code.</description>
+      <description>Developer Guide The Developer Guide provides information for developers who want to understand or contribute to the code.&#xA;Project structure Describes the WDT project structure.&#xA;Feature implementation How specific features are implemented.</description>
     </item>
     <item>
       <title>Release Notes</title>

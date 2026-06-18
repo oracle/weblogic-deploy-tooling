@@ -3,7 +3,7 @@
   <channel>
     <title>User Guide :: WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/index.html</link>
-    <description>User Guide The User Guide provides detailed information about installing and using WebLogic Deploy Tools.&#xA;Install WDTThis section describes how to download and install WDT and what versions of Java and WebLogic Server it supports.&#xA;WDT ToolsThis section covers the tools that make up WDT.&#xA;Target environmentsThis section covers advanced features to target your WDT model to a specific environment.</description>
+    <description>User Guide The User Guide provides detailed information about installing and using WebLogic Deploy Tools.&#xA;Install WDT This section describes how to download and install WDT and what versions of Java and WebLogic Server it supports.&#xA;WDT Tools This section covers the tools that make up WDT.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>

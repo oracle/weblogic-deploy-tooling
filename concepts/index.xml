@@ -3,7 +3,7 @@
   <channel>
     <title>Concepts :: WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/concepts/index.html</link>
-    <description>Concepts Archive FileThe section that discusses the structure and content of the WDT archive file.&#xA;Metadata ModelThe section that discusses the high-level concepts of the WDT model.</description>
+    <description>Concepts Archive File The section that discusses the structure and content of the WDT archive file.&#xA;Metadata Model The section that discusses the high-level concepts of the WDT model.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>

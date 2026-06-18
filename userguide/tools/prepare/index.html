@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.152.2">
-    <meta name="generator" content="Relearn 8.3.0">
+    <meta name="generator" content="Hugo 0.161.1">
+    <meta name="generator" content="Relearn 9.0.3">
     <meta name="description" content="Prepares model files for deploying to WebLogic Kubernetes Operator environment.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
@@ -23,29 +23,29 @@
     <meta itemprop="description" content="Prepares model files for deploying to WebLogic Kubernetes Operator environment.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="330">
+    <meta itemprop="wordCount" content="328">
     <title>Prepare Model Tool :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1781758167" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1781758167" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1781758167" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1781793509" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1781793509" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1781793509" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1781758167";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1781793509";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1781758167" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1781793509" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1781758167" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1781758167" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1781758167" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1781758167" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1781758167" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1781793509" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1781793509" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1781793509" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1781793509" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1781793509" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -56,10 +56,6 @@
       window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-deploy-tooling';
       window.relearn.disableInlineCopyToClipboard=true;
       window.relearn.enableBlockCodeWrap=true;
-      // legal
-      window.relearn.getItem = (s,n) => {return s.getItem(n)};
-      window.relearn.setItem = (s,n,v) => {return s.setItem(n,v)};
-      window.relearn.removeItem = (s,n) => {return s.removeItem(n)};
       // translations
       window.T_Copy_to_clipboard = `Copy text to clipboard`;
       window.T_Copied_to_clipboard = `Text copied to clipboard!`;
@@ -71,10 +67,10 @@
       window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'learn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
-        window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
@@ -82,34 +78,40 @@
         }
       }
       window.relearn.markVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant");
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
         document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
-          window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+          window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
         document.documentElement.dataset.rThemeVariant = variant;
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-    </script>
+    </script><style>
+:root {
+  --LOGO-IMAGE-width: 90px;
+}
+</style>
+
   </head>
-  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/userguide/tools/prepare/index.html">
+  <body class="mobile-support html" data-origin="/weblogic-deploy-tooling/userguide/tools/prepare/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button></span>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
 <nav class="TableOfContents">
@@ -128,13 +130,13 @@
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/userguide/index.html"><span itemprop="name">User Guide</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/userguide/tools/index.html"><span itemprop="name">WDT Tools</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Prepare Model Tool</span><meta itemprop="position" content="4"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/userguide/tools/compare/index.html" title="Compare Model Tool (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/userguide/tools/kubernetes/index.html" title="Extract Domain Resource Tool (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
@@ -153,10 +155,7 @@
   <header class="headline">
   </header>
 
-
-
 <h1 id="prepare-model-tool">Prepare Model Tool</h1>
-
 
 
 <p>The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:</p>
@@ -182,14 +181,7 @@ create_k8s_secrets.sh
 wko-domain.yaml</code></pre></div>
 <p>You should customize the <code>wko_variable.properties</code>, <code>create_k8s_secrets.sh</code>, and <code>wko-domain.yaml</code> files to provide
 environment-specific values that are appropriate for the target environment.</p>
-<p>For more information about additional target environments and options, see 
-
-<a href="/weblogic-deploy-tooling/userguide/target_env/"
-   
-   >
-Target environments
-</a>
-.</p>
+<p>For more information about additional target environments and options, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a>.</p>
 <h3 id="parameter-table-for-preparemodel">Parameter table for <code>prepareModel</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <table>
   <thead>
@@ -217,14 +209,7 @@ Target environments
       </tr>
       <tr>
           <td><code>-target</code></td>
-          <td>(Required) Name of the target configuration such as <code>wko</code>, <code>k8s</code>. For more information about target types, see 
-
-<a href="/weblogic-deploy-tooling/userguide/target_env/"
-   
-   >
-Target Environments
-</a>
-.</td>
+          <td>(Required) Name of the target configuration such as <code>wko</code>, <code>k8s</code>. For more information about target types, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target Environments</a>.</td>
           <td></td>
       </tr>
       <tr>
@@ -244,96 +229,92 @@ Target Environments
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
- 
- <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling/">
-   <img src="https://oracle.github.io/weblogic-deploy-tooling//images/logo.png" height="90"><br/>
-   WebLogic Deploy Tooling
- </a>
 
-        </div>
+<a id="logo" href="/weblogic-deploy-tooling/index.html">
+  <img src="/weblogic-deploy-tooling/images/logo.png" height="90" alt="WebLogic Deploy Tooling logo"><br/>
+  WebLogic Deploy Tooling
+</a>
+
         <search><form action="/weblogic-deploy-tooling/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
       </div>
       <div id="R-homelinks" class="default-animation homelinks">
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-homelinks">
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
           <ul class="space collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/index.html"><a class="padding" href="/weblogic-deploy-tooling/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/index.html"><a class="padding" href="/weblogic-deploy-tooling/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-headercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
           <ul class="">
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div class="R-sidebarmenu R-shortcutmenu-main">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/concepts/index.html"><a class="padding" href="/weblogic-deploy-tooling/concepts/index.html"><b> </b>Concepts</a><ul id="R-subsections-90941c33b457a4d12ffdbc0aa62a266d" class="collapsible-menu"></ul></li>
-            <li class="parent " data-nav-url="/weblogic-deploy-tooling/userguide/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/install/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/install/index.html">Install WDT</a></li>
-            <li class="parent alwaysopen " data-nav-url="/weblogic-deploy-tooling/userguide/tools/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/index.html"><b> </b>WDT Tools</a><ul id="R-subsections-7b3bc9511e17e6cce72c059be01d1c1d" class="collapsible-menu">
-            <li class="alwaysopen " data-nav-url="/weblogic-deploy-tooling/userguide/tools/shared/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/shared/index.html">Shared functionality</a><ul id="R-subsections-7d93f57c18d307256ce8f706cdaa4974" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/create/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/create/index.html">Create Domain Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/update/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/update/index.html">Update Domain Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/deploy/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/deploy/index.html">Deploy Applications Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/discover/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/discover/index.html">Discover Domain Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/encrypt/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/encrypt/index.html">Encrypt Model Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/validate/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/validate/index.html">Validate Model Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/compare/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/compare/index.html">Compare Model Tool</a></li>
-            <li class="active " data-nav-url="/weblogic-deploy-tooling/userguide/tools/prepare/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/prepare/index.html">Prepare Model Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/kubernetes/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/kubernetes/index.html">Extract Domain Resource Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/variable_injection/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/variable_injection/index.html">Variable Injector Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/model_help/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/model_help/index.html">Model Help Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/archive_helper/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/archive_helper/index.html">Archive Helper Tool</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/tools/verify_ssh/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/index.html">Verify SSH Tool</a></li></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/target_env/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/target_env/index.html">Target environments</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/database/connect-db/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/database/connect-db/index.html">Connect to a database</a></li>
-            <li class="alwaysopen " data-nav-url="/weblogic-deploy-tooling/userguide/tools-config/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools-config/index.html">Tools configuration</a><ul id="R-subsections-c4669204bf8f7b2300872f9f21388cb1" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/limitations/limitations/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/limitations/limitations/index.html">Limitations</a></li></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/developer/index.html"><a class="padding" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/concepts/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/concepts/index.html"><b> </b>Concepts</a><ul id="R-subsections-90941c33b457a4d12ffdbc0aa62a266d" class="collapsible-menu"></ul></li>
+            <li class="parent " data-nav-id="/weblogic-deploy-tooling/userguide/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu">
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/install/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/install/index.html">Install WDT</a></li>
+            <li class="parent alwaysopen " data-nav-id="/weblogic-deploy-tooling/userguide/tools/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/userguide/tools/index.html"><b> </b>WDT Tools</a><ul id="R-subsections-7b3bc9511e17e6cce72c059be01d1c1d" class="collapsible-menu">
+            <li class="alwaysopen " data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/userguide/tools/shared/index.html">Shared functionality</a><ul id="R-subsections-7d93f57c18d307256ce8f706cdaa4974" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/create/index.html">Create Domain Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/update/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/update/index.html">Update Domain Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/deploy/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/deploy/index.html">Deploy Applications Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/discover/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/discover/index.html">Discover Domain Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/encrypt/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/encrypt/index.html">Encrypt Model Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/validate/index.html">Validate Model Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/compare/index.html">Compare Model Tool</a></li>
+            <li class="active " data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/prepare/index.html">Prepare Model Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/kubernetes/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/kubernetes/index.html">Extract Domain Resource Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/variable_injection/index.html">Variable Injector Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/model_help/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/model_help/index.html">Model Help Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/archive_helper/index.html">Archive Helper Tool</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/tools/verify_ssh/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/index.html">Verify SSH Tool</a></li></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/target_env/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/target_env/index.html">Target environments</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/database/connect-db/index.html">Connect to a database</a></li>
+            <li class="alwaysopen " data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/userguide/tools-config/index.html">Tools configuration</a><ul id="R-subsections-c4669204bf8f7b2300872f9f21388cb1" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/limitations/limitations/index.html">Limitations</a></li></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/developer/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu"></ul></li>
           </ul>
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-shortcuts">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
           </ul>
         </div>
-        <div id="R-footer-margin"></div>
+        <div id="R-footer-margin" class="default-animation"></div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-footercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
           <ul class="">
           </ul>
         </div>
-<div id="R-footer">
-
-<p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<div id="R-footer" class="default-animation"><p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
 <p>&nbsp</p>
 <p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
 <p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1781758167" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1781793509" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

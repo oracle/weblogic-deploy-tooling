@@ -1,65 +1,57 @@
 <!DOCTYPE html>
-<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
+<html id="R-html" lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article" data-r-output-format="html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.152.2">
-    <meta name="generator" content="Relearn 8.3.0">
+    <meta name="generator" content="Hugo 0.161.1">
+    <meta name="generator" content="Relearn 9.0.3">
     <meta name="description" content="These typical use case scenarios show you how some common configurations can be represented in the model.
-Customizing the Administration ServerConfigure the Administration Server using a domain model.
-Modeling a configured clusterA domain model with a typical configuration for a configured cluster.
-Modeling a WTC configurationA domain model with a typical configuration for a WebLogic Tuxedo Connector.
-Modeling a JDBC data sourceA domain model with a typical configuration for a JDBC data source.">
+Customizing the Administration Server Configure the Administration Server using a domain model.
+Modeling a configured cluster A domain model with a typical configuration for a configured cluster.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Samples :: WebLogic Deploy Tooling">
     <meta name="twitter:description" content="These typical use case scenarios show you how some common configurations can be represented in the model.
-Customizing the Administration ServerConfigure the Administration Server using a domain model.
-Modeling a configured clusterA domain model with a typical configuration for a configured cluster.
-Modeling a WTC configurationA domain model with a typical configuration for a WebLogic Tuxedo Connector.
-Modeling a JDBC data sourceA domain model with a typical configuration for a JDBC data source.">
+Customizing the Administration Server Configure the Administration Server using a domain model.
+Modeling a configured cluster A domain model with a typical configuration for a configured cluster.">
     <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/samples/index.html">
     <meta property="og:site_name" content="WebLogic Deploy Tooling">
     <meta property="og:title" content="Samples :: WebLogic Deploy Tooling">
     <meta property="og:description" content="These typical use case scenarios show you how some common configurations can be represented in the model.
-Customizing the Administration ServerConfigure the Administration Server using a domain model.
-Modeling a configured clusterA domain model with a typical configuration for a configured cluster.
-Modeling a WTC configurationA domain model with a typical configuration for a WebLogic Tuxedo Connector.
-Modeling a JDBC data sourceA domain model with a typical configuration for a JDBC data source.">
+Customizing the Administration Server Configure the Administration Server using a domain model.
+Modeling a configured cluster A domain model with a typical configuration for a configured cluster.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="website">
     <meta itemprop="name" content="Samples :: WebLogic Deploy Tooling">
     <meta itemprop="description" content="These typical use case scenarios show you how some common configurations can be represented in the model.
-Customizing the Administration ServerConfigure the Administration Server using a domain model.
-Modeling a configured clusterA domain model with a typical configuration for a configured cluster.
-Modeling a WTC configurationA domain model with a typical configuration for a WebLogic Tuxedo Connector.
-Modeling a JDBC data sourceA domain model with a typical configuration for a JDBC data source.">
+Customizing the Administration Server Configure the Administration Server using a domain model.
+Modeling a configured cluster A domain model with a typical configuration for a configured cluster.">
     <meta itemprop="datePublished" content="2019-02-22T15:27:54-05:00">
     <meta itemprop="dateModified" content="2019-02-22T15:27:54-05:00">
-    <meta itemprop="wordCount" content="191">
+    <meta itemprop="wordCount" content="204">
     <title>Samples :: WebLogic Deploy Tooling</title>
     <link href="/weblogic-deploy-tooling/samples/index.xml" rel="alternate" type="application/rss+xml" title="Samples :: WebLogic Deploy Tooling">
-    <link href="/weblogic-deploy-tooling/images/logo.png?1781758167" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1781758167" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1781758167" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1781793509" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1781793509" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1781793509" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1781758167";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1781793509";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1781758167" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1781793509" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1781758167" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1781758167" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1781758167" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1781758167" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1781758167" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1781793509" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1781793509" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1781793509" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1781793509" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1781793509" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -70,10 +62,6 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
       window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-deploy-tooling';
       window.relearn.disableInlineCopyToClipboard=true;
       window.relearn.enableBlockCodeWrap=true;
-      // legal
-      window.relearn.getItem = (s,n) => {return s.getItem(n)};
-      window.relearn.setItem = (s,n,v) => {return s.setItem(n,v)};
-      window.relearn.removeItem = (s,n) => {return s.removeItem(n)};
       // translations
       window.T_Copy_to_clipboard = `Copy text to clipboard`;
       window.T_Copied_to_clipboard = `Text copied to clipboard!`;
@@ -85,10 +73,10 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
       window.T_Browser_unsupported_feature = `This browser doesn't support this feature`;
       // variant stuff
       window.relearn.themevariants = [ 'learn' ];
-      window.relearn.customvariantname = "my-custom-variant";
+      window.relearn.customvariantprefix = "my-custom-";
       window.relearn.changeVariant = function(variant) {
         var oldVariant = document.documentElement.dataset.rThemeVariant;
-        window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+        window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         document.documentElement.dataset.rThemeVariant = variant;
         if (oldVariant != variant) {
           document.dispatchEvent( new CustomEvent('themeVariantLoaded', { detail: { variant, oldVariant } }) );
@@ -96,36 +84,59 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
         }
       }
       window.relearn.markVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant");
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant");
         document.querySelectorAll(".R-variantswitcher select").forEach((select) => {select.value = variant;});
       }
       window.relearn.initVariant = function() {
-        var variant = window.relearn.getItem(window.localStorage, window.relearn.absBaseUri + "/variant") ?? "";
-        if( variant == window.relearn.customvariantname ){
-        }else if( !variant || !window.relearn.themevariants.includes(variant) ){
+        var variant = window.localStorage.getItem(window.relearn.absBaseUri + "/variant") ?? "";
+        if( !variant ||
+            (!variant.startsWith(window.relearn.customvariantprefix) && !window.relearn.themevariants.includes(variant)) ||
+            (variant.startsWith(window.relearn.customvariantprefix) && !window.localStorage.getItem(window.relearn.absBaseUri + "/variantstylesheet-" + variant)) ){
           variant = window.relearn.themevariants[0];
-          window.relearn.setItem(window.localStorage, window.relearn.absBaseUri + "/variant", variant);
+          window.localStorage.setItem(window.relearn.absBaseUri + "/variant", variant);
         }
         document.documentElement.dataset.rThemeVariant = variant;
       }
       window.relearn.initVariant();
       window.relearn.markVariant();
-    </script>
+    </script><style>
+:root {
+  --LOGO-IMAGE-width: 90px;
+}
+</style>
+
   </head>
-  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/samples/index.html">
+  <body class="mobile-support html" data-origin="/weblogic-deploy-tooling/samples/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
-      <nav id="R-topbar">
-        <div class="topbar-wrapper">
-          <div class="topbar-sidebar-divider"></div>
+      <nav id="R-topbar" class="default-animation">
+        <div class="topbar-wrapper default-animation">
+          <div class="topbar-sidebar-divider default-animation"></div>
           <div class="topbar-area topbar-area-start" data-area="start">
-            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
+            <div class="topbar-button topbar-button-sidebar default-animation" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button></span>
             </div>
-            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button></span>
+            <div class="topbar-button topbar-button-toc default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+<span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-table-list"></i></button></span>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper"> 
+                <div class="topbar-content-wrapper">
+<nav class="TableOfContents">
+  <ul>
+    <li><a href="#customizing-the-administration-server">Customizing the Administration Server</a></li>
+    <li><a href="#modeling-a-configured-cluster">Modeling a configured cluster</a></li>
+    <li><a href="#modeling-a-wtc-configuration">Modeling a WTC configuration</a></li>
+    <li><a href="#modeling-a-jdbc-data-source">Modeling a JDBC data source</a></li>
+    <li><a href="#modeling-a-work-manager">Modeling a Work Manager</a></li>
+    <li><a href="#modeling-security-providers">Modeling security providers</a></li>
+    <li><a href="#modeling-oracle-platform-security-services">Modeling Oracle Platform Security Services</a></li>
+    <li><a href="#modeling-weblogic-users-groups-roles-and-policies">Modeling WebLogic users, groups, roles, and policies</a></li>
+    <li><a href="#modeling-weblogic-user-password-credential-mapping">Modeling WebLogic user password credential mapping</a></li>
+    <li><a href="#configuring-oracle-diagnostic-logging">Configuring Oracle Diagnostic Logging</a></li>
+    <li><a href="#configuring-oracle-http-server">Configuring Oracle HTTP Server</a></li>
+    <li><a href="#targeting-server-groups">Targeting server groups</a></li>
+    <li><a href="#using-wdt-with-weblogic-kubernetes-operator">Using WDT with WebLogic Kubernetes Operator</a></li>
+  </ul>
+</nav>
                 </div>
               </div>
             </div>
@@ -133,13 +144,13 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Samples</span><meta itemprop="position" content="2"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-prev default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/userguide/limitations/limitations/index.html" title="Limitations (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-next default-animation" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/samples/adminserver-model/index.html" title="Customizing the Administration Server (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
-            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
+            <div class="topbar-button topbar-button-more default-animation" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
               <div class="topbar-content">
                 <div class="topbar-content-wrapper">
@@ -158,28 +169,64 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
   <header class="headline">
   </header>
 
-
-
 <h1 id="samples">Samples</h1>
 
 
-
 <p>These typical use case scenarios show you how some common configurations can be represented in the model.</p>
-<div class="children children-type-list children-sort-">
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/adminserver-model/index.html">Customizing the Administration Server</a></div><p>Configure the Administration Server using a domain model.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/cluster-model/index.html">Modeling a configured cluster</a></div><p>A domain model with a typical configuration for a configured cluster.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/wtc-model/index.html">Modeling a WTC configuration</a></div><p>A domain model with a typical configuration for a WebLogic Tuxedo Connector.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/jdbc-model/index.html">Modeling a JDBC data source</a></div><p>A domain model with a typical configuration for a JDBC data source.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/workmanager-model/index.html">Modeling a Work Manager</a></div><p>A domain model with a typical configuration for Work Manager.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/securityproviders-model/index.html">Modeling security providers</a></div><p>Special handling and model semantics for WebLogic Server security configuration.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/opss-model/index.html">Modeling Oracle Platform Security Services</a></div><p>Initializing OPSS configuration as part of WebLogic domain creation.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/usersgroups-model/index.html">Modeling WebLogic users, groups, roles, and policies</a></div><p>Establishing users, groups, global roles, and policies as part of WebLogic domain creation.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html">Modeling WebLogic user password credential mapping</a></div><p>A model for creating user password credential mappings.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/odl-model/index.html">Configuring Oracle Diagnostic Logging</a></div><p>A model for configuring Oracle Diagnostic Logging (ODL).</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/ohs-model/index.html">Configuring Oracle HTTP Server</a></div><p>A model for configuring Oracle HTTP Server (OHS).</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/targetservers-model/index.html">Targeting server groups</a></div><p>Targeting server groups to managed servers and dynamic server groups to dynamic clusters.</p>
-  <div class="children-title children-title-1"><a href="/weblogic-deploy-tooling/samples/wko-model/index.html">Using WDT with WebLogic Kubernetes Operator</a></div><p>Using WDT with WebLogic Kubernetes Operator.</p>
-</div>
+<ul class="children children-type-list children-sort-">
+<li>
+<h2 id="customizing-the-administration-server"><a href="/weblogic-deploy-tooling/samples/adminserver-model/index.html">Customizing the Administration Server</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Configure the Administration Server using a domain model.</p>
+</li>
+<li>
+<h2 id="modeling-a-configured-cluster"><a href="/weblogic-deploy-tooling/samples/cluster-model/index.html">Modeling a configured cluster</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A domain model with a typical configuration for a configured cluster.</p>
+</li>
+<li>
+<h2 id="modeling-a-wtc-configuration"><a href="/weblogic-deploy-tooling/samples/wtc-model/index.html">Modeling a WTC configuration</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A domain model with a typical configuration for a WebLogic Tuxedo Connector.</p>
+</li>
+<li>
+<h2 id="modeling-a-jdbc-data-source"><a href="/weblogic-deploy-tooling/samples/jdbc-model/index.html">Modeling a JDBC data source</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A domain model with a typical configuration for a JDBC data source.</p>
+</li>
+<li>
+<h2 id="modeling-a-work-manager"><a href="/weblogic-deploy-tooling/samples/workmanager-model/index.html">Modeling a Work Manager</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A domain model with a typical configuration for Work Manager.</p>
+</li>
+<li>
+<h2 id="modeling-security-providers"><a href="/weblogic-deploy-tooling/samples/securityproviders-model/index.html">Modeling security providers</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Special handling and model semantics for WebLogic Server security configuration.</p>
+</li>
+<li>
+<h2 id="modeling-oracle-platform-security-services"><a href="/weblogic-deploy-tooling/samples/opss-model/index.html">Modeling Oracle Platform Security Services</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Initializing OPSS configuration as part of WebLogic domain creation.</p>
+</li>
+<li>
+<h2 id="modeling-weblogic-users-groups-roles-and-policies"><a href="/weblogic-deploy-tooling/samples/usersgroups-model/index.html">Modeling WebLogic users, groups, roles, and policies</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Establishing users, groups, global roles, and policies as part of WebLogic domain creation.</p>
+</li>
+<li>
+<h2 id="modeling-weblogic-user-password-credential-mapping"><a href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html">Modeling WebLogic user password credential mapping</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A model for creating user password credential mappings.</p>
+</li>
+<li>
+<h2 id="configuring-oracle-diagnostic-logging"><a href="/weblogic-deploy-tooling/samples/odl-model/index.html">Configuring Oracle Diagnostic Logging</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A model for configuring Oracle Diagnostic Logging (ODL).</p>
+</li>
+<li>
+<h2 id="configuring-oracle-http-server"><a href="/weblogic-deploy-tooling/samples/ohs-model/index.html">Configuring Oracle HTTP Server</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>A model for configuring Oracle HTTP Server (OHS).</p>
+</li>
+<li>
+<h2 id="targeting-server-groups"><a href="/weblogic-deploy-tooling/samples/targetservers-model/index.html">Targeting server groups</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Targeting server groups to managed servers and dynamic server groups to dynamic clusters.</p>
+</li>
+<li>
+<h2 id="using-wdt-with-weblogic-kubernetes-operator"><a href="/weblogic-deploy-tooling/samples/wko-model/index.html">Using WDT with WebLogic Kubernetes Operator</a><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h2>
+<p>Using WDT with WebLogic Kubernetes Operator.</p>
+</li>
+</ul>
 
   <footer class="footline">
   </footer>
@@ -190,89 +237,85 @@ Modeling a JDBC data sourceA domain model with a typical configuration for a JDB
     <aside id="R-sidebar" class="default-animation">
       <div id="R-header-topbar" class="default-animation"></div>
       <div id="R-header-wrapper" class="default-animation">
-        <div id="R-header" class="default-animation">
- 
- <a id="logo" href="https://oracle.github.io/weblogic-deploy-tooling/">
-   <img src="https://oracle.github.io/weblogic-deploy-tooling//images/logo.png" height="90"><br/>
-   WebLogic Deploy Tooling
- </a>
 
-        </div>
+<a id="logo" href="/weblogic-deploy-tooling/index.html">
+  <img src="/weblogic-deploy-tooling/images/logo.png" height="90" alt="WebLogic Deploy Tooling logo"><br/>
+  WebLogic Deploy Tooling
+</a>
+
         <search><form action="/weblogic-deploy-tooling/search/index.html" method="get">
           <div class="searchbox default-animation">
-            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-search"></i></button>
+            <button class="search-detail" type="submit" title="Search (CTRL+ALT+f)"><i class="fas fa-fw fa-search"></i></button>
             <label class="a11y-only" for="R-search-by">Search</label>
             <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
-            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-fw fa-times" title="Clear search"></i></button>
           </div>
         </form></search>
       </div>
       <div id="R-homelinks" class="default-animation homelinks">
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-homelinks">
+        <div class="R-sidebarmenu R-shortcutmenu-homelinks default-animation">
           <ul class="space collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/index.html"><a class="padding" href="/weblogic-deploy-tooling/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/index.html"><a class="padding" href="/weblogic-deploy-tooling/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-headercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-headercontrols default-animation">
           <ul class="">
           </ul>
         </div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
       </div>
       <div id="R-content-wrapper" class="highlightable">
-        <div class="R-sidebarmenu R-shortcutmenu-main">
+        <div class="R-sidebarmenu R-shortcutmenu-main default-animation">
           <ul class="enlarge morespace collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/concepts/index.html"><a class="padding" href="/weblogic-deploy-tooling/concepts/index.html"><b> </b>Concepts</a><ul id="R-subsections-90941c33b457a4d12ffdbc0aa62a266d" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/userguide/index.html"><a class="padding" href="/weblogic-deploy-tooling/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu"></ul></li>
-            <li class="active parent " data-nav-url="/weblogic-deploy-tooling/samples/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/adminserver-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/adminserver-model/index.html">Customizing the Administration Server</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/cluster-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/cluster-model/index.html">Modeling a configured cluster</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/wtc-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/wtc-model/index.html">Modeling a WTC configuration</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/jdbc-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/jdbc-model/index.html">Modeling a JDBC data source</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/workmanager-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/workmanager-model/index.html">Modeling a Work Manager</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/securityproviders-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/securityproviders-model/index.html">Modeling security providers</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/opss-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/opss-model/index.html">Modeling Oracle Platform Security Services</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/usersgroups-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/usersgroups-model/index.html">Modeling WebLogic users, groups, roles, and policies</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html">Modeling WebLogic user password credential mapping</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/odl-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/odl-model/index.html">Configuring Oracle Diagnostic Logging</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/ohs-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/ohs-model/index.html">Configuring Oracle HTTP Server</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/targetservers-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/targetservers-model/index.html">Targeting server groups</a></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/samples/wko-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/wko-model/index.html">Using WDT with WebLogic Kubernetes Operator</a></li></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/developer/index.html"><a class="padding" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
-            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/concepts/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/concepts/index.html"><b> </b>Concepts</a><ul id="R-subsections-90941c33b457a4d12ffdbc0aa62a266d" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/userguide/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/userguide/index.html"><b> </b>User Guide</a><ul id="R-subsections-74b4df3a3d9365853f09e9f1dfe7bbba" class="collapsible-menu"></ul></li>
+            <li class="active parent " data-nav-id="/weblogic-deploy-tooling/samples/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu">
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/adminserver-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/adminserver-model/index.html">Customizing the Administration Server</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/cluster-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/cluster-model/index.html">Modeling a configured cluster</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/wtc-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/wtc-model/index.html">Modeling a WTC configuration</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/jdbc-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/jdbc-model/index.html">Modeling a JDBC data source</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/workmanager-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/workmanager-model/index.html">Modeling a Work Manager</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/securityproviders-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/securityproviders-model/index.html">Modeling security providers</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/opss-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/opss-model/index.html">Modeling Oracle Platform Security Services</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/usersgroups-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/usersgroups-model/index.html">Modeling WebLogic users, groups, roles, and policies</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/index.html">Modeling WebLogic user password credential mapping</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/odl-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/odl-model/index.html">Configuring Oracle Diagnostic Logging</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/ohs-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/ohs-model/index.html">Configuring Oracle HTTP Server</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/targetservers-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/targetservers-model/index.html">Targeting server groups</a></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/samples/wko-model/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/wko-model/index.html">Using WDT with WebLogic Kubernetes Operator</a></li></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/developer/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
+            <li class="" data-nav-id="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding default-animation" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu"></ul></li>
           </ul>
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-shortcuts">
+        <div class="R-sidebarmenu R-shortcutmenu-shortcuts default-animation">
           <ul class="space collapsible-menu">
           </ul>
         </div>
-        <div id="R-footer-margin"></div>
+        <div id="R-footer-margin" class="default-animation"></div>
         <div class="R-menu-divider default-animation">
-          <hr class="padding">
+          <hr class="padding default-animation">
         </div>
-        <div class="R-sidebarmenu R-shortcutmenu-footercontrols">
+        <div class="R-sidebarmenu R-shortcutmenu-footercontrols default-animation">
           <ul class="">
           </ul>
         </div>
-<div id="R-footer">
-
-<p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<div id="R-footer" class="default-animation"><p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
 <p>&nbsp</p>
 <p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
 <p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1781758167" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1781758167" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1781793509" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1781793509" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
