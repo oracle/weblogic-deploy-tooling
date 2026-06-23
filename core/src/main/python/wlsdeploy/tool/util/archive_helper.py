@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -223,11 +223,12 @@ class ArchiveList(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def extract_directory(self, path, location=None):
+    def extract_directory(self, path, location=None, extract_path=None):
         """
         Extract the specified directory from the archive into the specified directory, or into Domain Home.
         :param path: the path into the archive
         :param location: the location to which to extract the directory
+        :param extract_path: optional path below the location to which to extract the directory
         :return: path to the extracted directory
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
@@ -237,10 +238,16 @@ class ArchiveList(object):
         try:
             archive_file = self._find_archive_for_path(path, True)
             if location is None:
-                result = archive_file.extractDirectory(path, self.get_domain_home_file())
+                if extract_path is None:
+                    result = archive_file.extractDirectory(path, self.get_domain_home_file())
+                else:
+                    result = archive_file.extractDirectory(path, self.get_domain_home_file(), extract_path)
             else:
                 extract_location = FileUtils.getCanonicalFile(File(location))
-                result = archive_file.extractDirectory(path, extract_location)
+                if extract_path is None:
+                    result = archive_file.extractDirectory(path, extract_location)
+                else:
+                    result = archive_file.extractDirectory(path, extract_location, extract_path)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_files_text, e.getLocalizedMessage(), error=e)

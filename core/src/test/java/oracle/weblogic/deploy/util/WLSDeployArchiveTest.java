@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2026, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class WLSDeployArchiveTest {
 
     private static final String APPS_ARCHIVE_FILE_NAME = "target/unit-tests/appsArchive.zip";
+    private static final String EXTRACT_DIRECTORY_ARCHIVE_FILE_NAME = "target/unit-tests/extractDirectoryArchive.zip";
     private static final String APP1_TO_ADD = "src/test/resources/my-app.war";
     private static final String APP2_TO_ADD = "src/test/resources/my-other-app.war";
     private static final String APP1_ENTRY_NAME1 = "wlsdeploy/applications/my-app.war";
@@ -69,6 +70,10 @@ public class WLSDeployArchiveTest {
         if (appsArchiveFile.exists()) {
             appsArchiveFile.delete();
         }
+        File extractDirectoryArchiveFile = new File(EXTRACT_DIRECTORY_ARCHIVE_FILE_NAME).getCanonicalFile();
+        if (extractDirectoryArchiveFile.exists()) {
+            extractDirectoryArchiveFile.delete();
+        }
 
         PlatformLogger logger = WLSDeployLogFactory.getLogger("wlsdeploy.archive");
         logger.setLevel(Level.OFF);
@@ -100,6 +105,26 @@ public class WLSDeployArchiveTest {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         String appName = archive.addApplication(APP_DIR_TO_ADD);
         assertEquals(APP_DIR_ENTRY_NAME, appName, "unexpected app name: " + appName);
+        archive.close();
+    }
+
+    @Test
+    void testExtractDirectoryToDifferentTargetPath() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(EXTRACT_DIRECTORY_ARCHIVE_FILE_NAME);
+        archive.addApplication(APP_DIR_TO_ADD);
+
+        File domainHome = new File("target/unit-tests/extract-directory-target").getCanonicalFile();
+        if (!domainHome.exists() && !domainHome.mkdirs()) {
+            fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
+        }
+
+        String targetPath = "config/" + APP_DIR_ENTRY_NAME;
+        String extractedPath = archive.extractDirectory(APP_DIR_ENTRY_NAME, domainHome, targetPath);
+
+        File expectedDir = new File(domainHome, targetPath).getCanonicalFile();
+        assertEquals(expectedDir.getAbsolutePath(), extractedPath, "unexpected extracted directory path");
+        assertTrue(new File(expectedDir, "WEB-INF/web.xml").exists(), "expected directory contents to be extracted");
+        assertFalse(new File(expectedDir, APP_DIR_ENTRY_NAME).exists(), "archive path should not be duplicated");
         archive.close();
     }
 

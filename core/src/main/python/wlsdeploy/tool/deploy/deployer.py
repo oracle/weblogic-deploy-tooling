@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from array import array
@@ -372,7 +372,7 @@ class Deployer(object):
                         self.model_context.get_domain_home())
 
                 self.__process_archive_entry(location, key, relative_path_in_archive, extract_location,
-                                             self.model_context.is_ssh())
+                                             self.model_context.is_ssh(), extract_path)
 
                 if not relative_path_in_archive.endswith('/') and result and self.model_context.is_ssh():
                     # upload to remote
@@ -387,13 +387,14 @@ class Deployer(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
-    def __process_archive_entry(self, location, key, value, extract_location, is_ssh=False):
+    def __process_archive_entry(self, location, key, value, extract_location, is_ssh=False, extract_path=None):
         """
         Extract the archive entry, if needed.  Note that this method assumes the path has already been
         tested to verify that it points into the archive.
         :param location: the location
         :param key: the attribute name
         :param value: the attribute value
+        :param extract_path: optional domain-relative path where the archive entry should be extracted
         :return: True if the artifact was extracted, False otherwise
         """
         _method_name = '__process_archive_entry'
@@ -439,7 +440,11 @@ class Deployer(object):
         elif self.archive_helper.contains_path(value):
             # contents should have been extracted elsewhere, such as for apps and shared libraries
             # ssh deploy app/libs doesn't use this code path
-            result = self.archive_helper.extract_directory(value, location=extract_location)
+            if extract_path == value:
+                result = self.archive_helper.extract_directory(value, location=self.model_context.get_domain_home())
+            else:
+                result = self.archive_helper.extract_directory(value, location=self.model_context.get_domain_home(),
+                                                               extract_path=extract_path)
         elif value.endswith('/'):
             # If the path is a directory in the wlsdeploy directory tree
             # but not in the archive, just create it to help the user.

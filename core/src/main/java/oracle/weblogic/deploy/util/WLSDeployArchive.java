@@ -849,6 +849,38 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the specified directory to the specified location using a different target directory name.  For example,
+     * if the path is wlsdeploy/foo and the extractPath is config/wlsdeploy/foo, the directory will be written to
+     * $DOMAIN_HOME/config/wlsdeploy/foo.
+     *
+     * @param path              the path into the archive file to extract
+     * @param extractToLocation the base directory to which to write the extracted directory
+     * @param extractPath       the path below extractToLocation to which to write the extracted directory
+     * @return the canonical extracted directory name
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the directory
+     * @throws IllegalArgumentException    if the path or extractPath is null or empty, or the extractToLocation
+     *                                     was not a valid, existing directory
+     */
+    public String extractDirectory(String path, File extractToLocation, String extractPath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDirectory";
+        LOGGER.entering(CLASS, METHOD, path, extractToLocation, extractPath);
+        validateNonEmptyString(path, "path", METHOD);
+        validateNonEmptyString(extractPath, "extractPath", METHOD);
+        validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
+
+        String archivePath = path.endsWith(ZIP_SEP) ? path.substring(0, path.length() - 1) : path;
+        String targetPath = extractPath.endsWith(ZIP_SEP) ? extractPath.substring(0, extractPath.length() - 1) :
+            extractPath;
+
+        String result = FileUtils.getCanonicalFile(new File(extractToLocation, targetPath)).getAbsolutePath();
+        this.extractDirectoryFromZip(archivePath, targetPath, extractToLocation);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
      * Extract the specified file to the specified location.
      *
      * @param path                        the path into the archive file to extract
