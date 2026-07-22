@@ -4,9 +4,11 @@
 
 Run from `integration-tests/alias-test/verify`.
 
-Use generated-file download by default:
+For an initial verification run, install WDT and use generated-file download:
 
-`mvn -B verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_tenancy=<oci_namespace> -Dalias_test_oci_profile=<oci_profile> -Dwls_version=<version>`
+`mvn -B verify -DskipTests=true -Dalias-test-skipITs=false -Dalias_test_tenancy=<oci_namespace> -Dalias_test_oci_profile=<oci_profile> -Dwls_version=<version>`
+
+This ensures that `target/weblogic-deploy` exists before verification.  For follow-up runs in the same workspace, after that runtime has been installed, add `-Dskip-wdt-install=true` to avoid reinstalling it.
 
 Do not pass `-Dskip-generated-file-download=true` unless explicitly asked to verify existing local `target` files.
 

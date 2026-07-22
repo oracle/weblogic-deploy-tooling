@@ -13,7 +13,9 @@
         "JndiOutboundConnectionsAllowListEnabled": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
         "Notes": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
         "SerializedWorkContextMaximumSize": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "SerializedWorkContextMaximumSize", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ],
+        "StrictReplicationAuthorizationEnabled": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictReplicationAuthorizationEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" } ],
         "T3RouteOnlyToTrustedServersEnabled": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "T3RouteOnlyToTrustedServersEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+        "WorkContextClassValidationEnabled": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "WorkContextClassValidationEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
         "WLDFScriptActionPathRestrictionEnabled": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Wldf:WLDF}ScriptActionPathRestrictionEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ]
     },
     "wlst_attributes_path": "WP001",
