@@ -183,7 +183,10 @@
       "short_name": "Global",
       "folders": {},
       "attributes": {
-        "AllowNonStandardTypes":          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AllowNonStandardTypes",         "wlst_path": "WP001", "default_value": "${__NULL__:NO}",                          "wlst_type": "string"   } ],
+        "AllowNonStandardTypes":          [
+          {"version": "[10,26.1)",       "wlst_mode": "both",   "wlst_name": "AllowNonStandardTypes",         "wlst_path": "WP001", "default_value": "${__NULL__:NO}",                          "wlst_type": "string"   },
+          {"version": "[26.1,)",         "wlst_mode": "both",   "wlst_name": "AllowNonStandardTypes",         "wlst_path": "WP001", "default_value": "${__NULL__:No}",                          "wlst_type": "string"   }
+        ],
         "DefaultReplyDeliveryMode":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "DefaultReplyDeliveryMode",      "wlst_path": "WP001", "default_value": "${__NULL__:DEFAULT}",                     "wlst_type": "string"   } ],
         "DeliveryModeOverride":           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "DeliveryModeOverride",          "wlst_path": "WP001", "default_value": "${__NULL__:NONPERSIST}",                  "wlst_type": "string"   } ],
         "JmsFactory":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "JmsFactory",                    "wlst_path": "WP001", "default_value": "weblogic.jms.XAConnectionFactory",        "wlst_type": "string"   } ],
@@ -193,7 +196,10 @@
         "Retries":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Retries",                       "wlst_path": "WP001", "default_value": 0,                                         "wlst_type": "integer"  } ],
         "RetryDelay":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RetryDelay",                    "wlst_path": "WP001", "default_value": 10,                                        "wlst_type": "integer"  } ],
         "Timeout":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Timeout",                       "wlst_path": "WP001", "default_value": 60,                                        "wlst_type": "integer"  } ],
-        "Transactional":                  [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Transactional",                 "wlst_path": "WP001", "default_value": "${__NULL__:NO}",                          "wlst_type": "string"   } ],
+        "Transactional":                  [
+          {"version": "[10,26.1)",       "wlst_mode": "both",   "wlst_name": "Transactional",                 "wlst_path": "WP001", "default_value": "${__NULL__:NO}",                          "wlst_type": "string"   },
+          {"version": "[26.1,)",         "wlst_mode": "both",   "wlst_name": "Transactional",                 "wlst_path": "WP001", "default_value": "${__NULL__:No}",                          "wlst_type": "string"   }
+        ],
         "TuxErrorQueue":                  [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxErrorQueue",                 "wlst_path": "WP001", "default_value": null,                                      "wlst_type": "string"   } ],
         "TuxFactory":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxFactory",                    "wlst_path": "WP001", "default_value": "tuxedo.services.TuxedoConnection",        "wlst_type": "string"   } ],
         "TuxToJmsPriorityMap":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TuxToJmsPriorityMap",           "wlst_path": "WP001", "default_value": null,                                      "wlst_type": "delimited_map[wtc]" } ],
