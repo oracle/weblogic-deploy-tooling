@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.",
+  "copyright": "Copyright (c) 2020, 2026, Oracle Corporation and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "CdiContainer",
   "online_bean": "weblogic.management.configuration.CdiContainerMBean",
@@ -9,7 +9,8 @@
   "attributes": {
     "ImplicitBeanDiscoveryEnabled":   [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "ImplicitBeanDiscoveryEnabled",      "wlst_path": "WP001", "default_value": "true",                 "wlst_type": "boolean" } ],
     "Notes":                          [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "Notes",                             "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string"  } ],
-    "Policy":                         [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Policy",                            "wlst_path": "WP001", "default_value": "${__NULL__:Enabled}",  "wlst_type": "string"  } ]
+    "Policy":                         [ {"version": "[12.2.1.1,26.1)", "wlst_mode": "both", "wlst_name": "Policy",                         "wlst_path": "WP001", "default_value": "${__NULL__:Enabled}",  "wlst_type": "string"  },
+                                        {"version": "[26.1,)",          "wlst_mode": "both", "wlst_name": "Policy",                         "wlst_path": "WP001", "default_value": "Enabled",              "wlst_type": "string"  } ]
   },
   "wlst_attributes_path": "WP001",
   "wlst_paths": {

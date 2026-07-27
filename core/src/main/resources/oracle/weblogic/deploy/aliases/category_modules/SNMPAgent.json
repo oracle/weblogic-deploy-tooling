@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2024, 2025, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2024, 2026, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SNMPAgent",
     "online_bean": "weblogic.management.configuration.SNMPAgentMBean",
@@ -138,7 +138,8 @@
                 "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 162, "wlst_type": "integer" } ],
                 "SecurityLevel": [
                     { "version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string" },
-                    { "version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:authNoPriv}",   "wlst_type": "string" }
+                    { "version": "[12.2.1.4,26.1)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:authNoPriv}", "wlst_type": "string" },
+                    { "version": "[26.1,)",         "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "authNoPriv",           "wlst_type": "string" }
                 ],
                 "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
             },
@@ -151,7 +152,8 @@
     "attributes": {
         "AuthenticationProtocol":      [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both",  "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:noAuth}", "wlst_type": "string" },
-            {"version": "[12.2.1.4,)",   "wlst_mode": "both",  "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:MD5}",    "wlst_type": "string" }
+            {"version": "[12.2.1.4,26.1)", "wlst_mode": "both", "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:MD5}",  "wlst_type": "string" },
+            {"version": "[26.1,)",         "wlst_mode": "both", "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "MD5",              "wlst_type": "string" }
         ],
         "CommunityBasedAccessEnabled": [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityBasedAccessEnabled", "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" },
@@ -177,12 +179,14 @@
         "Notes":                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "PrivacyProtocol":             [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:noPriv}",  "wlst_type": "string" },
-            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:AES_128}", "wlst_type": "string" }
+            {"version": "[12.2.1.4,26.1)", "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:AES_128}", "wlst_type": "string" },
+            {"version": "[26.1,)",         "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "AES_128",             "wlst_type": "string" }
         ],
         "SNMPPort":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "SNMPPort",                    "wlst_path": "WP001", "default_value": 161,     "wlst_type": "integer" } ],
         "SNMPTrapVersion":             [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:1}", "wlst_type": "integer" },
-            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:3}", "wlst_type": "integer" }
+            {"version": "[12.2.1.4,26.1)", "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:3}", "wlst_type": "integer" },
+            {"version": "[26.1,)",         "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": 3,        "wlst_type": "integer" }
         ],
         "SendAutomaticTrapsEnabled":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "SendAutomaticTrapsEnabled",   "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean" } ],
         "ServerStatusCheckIntervalFactor":

@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2017, 2025, Oracle Corporation and/or its affiliates.",
+  "copyright": "Copyright (c) 2017, 2026, Oracle Corporation and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "LogFilter${:s}",
   "online_bean": "weblogic.management.configuration.LogFilterMBean",
@@ -9,7 +9,8 @@
   "attributes": {
     "FilterExpression":          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "FilterExpression",          "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",                   "get_method": "${LSA:GET}" } ],
     "Notes":                     [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                     "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"                     } ],
-    "SeverityLevel":             [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "SeverityLevel",             "wlst_path": "WP001", "default_value": 0,                 "wlst_type": "integer"                    } ],
+    "SeverityLevel":             [ {"version": "[10,26.1)", "wlst_mode": "offline", "wlst_name": "SeverityLevel",             "wlst_path": "WP001", "default_value": 0,                 "wlst_type": "integer"                    },
+                                   {"version": "[26.1,)",   "wlst_mode": "offline", "wlst_name": "SeverityLevel",             "wlst_path": "WP001", "default_value": 16,                "wlst_type": "integer"                    } ],
     "SubsystemName":             [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "SubsystemName",             "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string",         "get_method": "LSA" } ],
     "UserId":                    [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "UserId",                    "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string",         "get_method": "LSA" } ]
   },

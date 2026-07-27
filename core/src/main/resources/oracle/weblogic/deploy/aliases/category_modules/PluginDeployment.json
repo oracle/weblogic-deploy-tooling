@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2025, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2025, 2026, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "PluginDeployment${:s}",
     "online_bean": "weblogic.management.configuration.PluginDeploymentMBean",
@@ -68,7 +68,8 @@
         "PlanStagingMode":           [ {"version": "[15.1.1,)", "wlst_mode": "both",    "wlst_name": "PlanStagingMode",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}"} ],
         "PluginType":                [ {"version": "[15.1.1,)", "wlst_mode": "both",    "wlst_name": "PluginType",                "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}" } ],
         "RootStagingDir":            [ {"version": "[15.1.1,)", "wlst_mode": "online",  "wlst_name": "RootStagingDir",            "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
-        "SecurityDDModel":           [ {"version": "[15.1.1,)", "wlst_mode": "both",    "wlst_name": "SecurityDDModel",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": "${__NULL__:DDOnly}", "access": "${:RO}" }],
+        "SecurityDDModel":           [ {"version": "[15.1.1,26.1)", "wlst_mode": "both",    "wlst_name": "SecurityDDModel",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": "${__NULL__:DDOnly}", "access": "${:RO}" },
+                                       {"version": "[26.1,)",       "wlst_mode": "both",    "wlst_name": "SecurityDDModel",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": "DDOnly",             "access": "${:RO}" }],
         "SourcePath":                [ {"version": "[15.1.1,)", "wlst_mode": "both",    "wlst_name": "SourcePath",                "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}", "uses_path_tokens": "true" } ],
         "StagingMode":               [ {"version": "[15.1.1,)", "wlst_mode": "both",    "wlst_name": "StagingMode",               "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}"  }],
         "Target":                    [ {"version": "[15.1.1,)", "wlst_mode": "offline", "wlst_name": "Target",                    "wlst_path": "WP001", "wlst_type": "delimited_string", "default_value": null, "set_method": "MBEAN.set_target_mbeans" },
