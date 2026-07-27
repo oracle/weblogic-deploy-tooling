@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2026, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Librar${y:ies}",
     "online_bean": "weblogic.management.configuration.LibraryMBean",
@@ -66,7 +66,8 @@
         "PlanStagingMode":                    [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "PlanStagingMode",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "access": "${:RO}" } ],
         "RootStagingDir":                     [ {"version": "[10,)",           "wlst_mode": "online",  "wlst_name": "RootStagingDir",                    "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "get_method": "GET", "access": "IGNORED", "uses_path_tokens": "true"} ],
         "SecurityDDModel":                    [ {"version": "[10,12.1.2)",     "wlst_mode": "offline", "wlst_name": "SecurityDdModel",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           },
-                                                {"version": "[12.1.2,)",       "wlst_mode": "offline", "wlst_name": "SecurityDDModel",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           },
+                                                {"version": "[12.1.2,26.1)",   "wlst_mode": "offline", "wlst_name": "SecurityDDModel",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           },
+                                                {"version": "[26.1,)",         "wlst_mode": "offline", "wlst_name": "SecurityDDModel",                   "wlst_path": "WP001", "default_value": "DDOnly", "wlst_type": "string"           },
                                                 {"version": "[10,)",           "wlst_mode": "online",  "wlst_name": "SecurityDDModel",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "access": "${:IGNORED}"} ],
         "SourcePath":                         [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "SourcePath",                        "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "access": "${:RO}","uses_path_tokens": "true"} ],
         "StagingMode":                        [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "StagingMode",                       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "access": "${:RO}"} ],

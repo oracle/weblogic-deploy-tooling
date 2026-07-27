@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2026, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Machine${:s}",
     "online_bean": "weblogic.management.configuration.MachineMBean",
@@ -25,7 +25,8 @@
                 "ListenPort":                    [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ListenPort",                    "wlst_path": "WP001",  "default_value": 5556,                 "wlst_type": "integer"            } ],
                 "NMSocketCreateTimeoutInMillis": [ {"version": "[12.2.1.2,14.1.2)", "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "default_value": 180000,               "wlst_type": "integer"            },
                                                    {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001",  "default_value": 15000,                "wlst_type": "integer"            }],
-                "NMType":                        [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "default_value": "${__NULL__:SSL}",    "wlst_type": "string"             } ],
+                "NMType":                        [ {"version": "[10,26.1)",         "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "default_value": "${__NULL__:SSL}",    "wlst_type": "string"             },
+                                                   {"version": "[26.1,)",           "wlst_mode": "both",    "wlst_name": "NMType",                        "wlst_path": "WP001",  "default_value": "SSL",                "wlst_type": "string"             } ],
                 "NodeManagerHome":               [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "NodeManagerHome",               "wlst_path": "WP001",  "default_value": null,                 "wlst_type": "string",            "uses_path_tokens": "true"} ],
                 "Notes":                         [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "Notes",                         "wlst_path": "WP001",  "default_value": null,                 "wlst_type": "string"             } ],
                 "PasswordEncrypted":             [ {"version": "[10.3.4,)",         "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",             "wlst_path": "WP001",  "default_value": null,                 "wlst_type": "password",          "get_method": "GET"} ],
