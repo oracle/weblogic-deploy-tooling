@@ -4,6 +4,13 @@
     "wlst_type": "FeatureCompatibility",
     "online_bean": "weblogic.management.configuration.FeatureCompatibilityMBean",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "folder_params": [
+        { "version": "[12.2.1.4.0.260625,14.1.1)",  "wlst_mode": "both" },
+        { "version": "[14.1.1.0.0.260625,14.1.2)",  "wlst_mode": "both" },
+        { "version": "[14.1.2.0.0.260622,15.1.1)",  "wlst_mode": "both" },
+        { "version": "[15.1.1.0.0.260625,26.1)",    "wlst_mode": "both" },
+        { "version": "[26.1,)",                     "wlst_mode": "both" }
+    ],
     "folders": {},
     "attributes": {
         "IIOPUnauthenticatedServiceContextValueTypeFilteringEnabled": [
