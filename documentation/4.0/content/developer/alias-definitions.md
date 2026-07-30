@@ -83,6 +83,23 @@ This value specifies how the tool will map the domain model element to one or mo
 
 - `multiple` - this element contains multiple named elements (such as `dataSource1`, `dataSource2`), and each represents a single MBean.
 
+#### `folder_params`
+
+This optional ordered array defines the WebLogic version and WLST mode combinations in which a folder is available. Each entry must specify a Maven version range and can specify a `wlst_mode` of `offline`, `online`, or `both`. The first entry that matches the current version and mode is used; if none match, the folder is unavailable.
+
+Do not combine `folder_params` with a top-level `version` on the same folder. The selected `folder_params` entry supplies the effective version range and overrides the top-level value.
+
+Use separate, non-overlapping entries to describe a folder that is available in disjoint version ranges. An entry can also provide folder parameters, such as `wlst_type` or `wlst_paths`, when their values differ by version or mode. Do not include `folders` or `attributes` in a `folder_params` entry.
+
+For example, this folder is available from the listed PSU through releases before 14.1.1, and again in 26.1 and later. It is unavailable in the gap between those ranges.
+
+```json
+"folder_params": [
+    { "version": "[12.2.1.4.0.260625,14.1.1)", "wlst_mode": "both" },
+    { "version": "[26.1,)",                    "wlst_mode": "both" }
+]
+```
+
 #### `folders`
 
 Nested WLST MBean types for the current MBean are listed here. Each has a domain model type name, followed by its own JSON keyed elements.

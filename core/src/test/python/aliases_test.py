@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -868,6 +868,25 @@ class AliasesTestCase(unittest.TestCase):
         for folder in top_level_topology_folders:
             result, message = self.aliases.is_valid_model_folder_name(location, folder)
             self.assertEqual(result == ValidationCodes.VALID or result == ValidationCodes.CONTEXT_INVALID, True)
+
+    def testFeatureCompatibilityFolderVersionRanges(self):
+        expected_results = [
+            ('12.2.1.4.0',          False),
+            ('12.2.1.4.0.260625',   True),
+            ('14.1.1',              False),
+            ('14.1.1.0.0.260625',   True),
+            ('15.1.1',              False),
+            ('26.1.0.0.0',          True)
+        ]
+        location = LocationContext()
+
+        for wlst_mode in [WlstModes.OFFLINE, WlstModes.ONLINE]:
+            for wls_version, expected_valid in expected_results:
+                aliases = Aliases(self.model_context, wlst_mode=wlst_mode, wls_version=wls_version)
+                result, message = aliases.is_valid_model_folder_name(location, 'FeatureCompatibility')
+                self.assertEqual(result == ValidationCodes.VALID, expected_valid,
+                                 'Unexpected availability for %s mode and WLS %s: %s' %
+                                 (wlst_mode, wls_version, message))
 
     def testBooleanDefaultValues(self):
         location = LocationContext().append_location(FOLDERS.RESTFUL_MANAGEMENT_SERVICES, DOMAIN='mydomain')
