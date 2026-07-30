@@ -2218,6 +2218,7 @@
         "OutboundReferenceHostAllowList":        [
             {"version": "[12.2.1.3.0.230402,12.2.1.4)", "wlst_mode": "offline", "wlst_name": "OutboundReferenceHostAllowList", "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"           },
             {"version": "[12.2.1.4.0.230328,14.1.1)",   "wlst_mode": "offline", "wlst_name": "OutboundReferenceHostAllowList", "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"           },
+            {"version": "[12.2.1.4.0.260625,14.1.1)",   "wlst_mode": "online",  "wlst_name": "OutboundReferenceHostAllowList", "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"           },
             {"version": "[14.1.1.0.0.221213,)",         "wlst_mode": "online",  "wlst_name": "OutboundReferenceHostAllowList", "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"           },
             {"version": "[14.1.1.0.0.230328,)",         "wlst_mode": "offline", "wlst_name": "OutboundReferenceHostAllowList", "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"           }
         ],
