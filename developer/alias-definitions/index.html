@@ -23,29 +23,29 @@
     <meta itemprop="description" content="How the WDT aliases work.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="1387">
+    <meta itemprop="wordCount" content="1558">
     <title>Alias definitions :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1785384918" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1785384918" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1785384918" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1785434246" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1785434246" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1785434246" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1785384918";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1785434246";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1785384918" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1785434246" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1785384918" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1785384918" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1785384918" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1785384918" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1785384918" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1785434246" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1785434246" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1785434246" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1785434246" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1785434246" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -222,6 +222,15 @@
 <p><code>multiple</code> - this element contains multiple named elements (such as <code>dataSource1</code>, <code>dataSource2</code>), and each represents a single MBean.</p>
 </li>
 </ul>
+<h4 id="folder_params"><code>folder_params</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
+<p>This optional ordered array defines the WebLogic version and WLST mode combinations in which a folder is available. Each entry must specify a Maven version range and can specify a <code>wlst_mode</code> of <code>offline</code>, <code>online</code>, or <code>both</code>. The first entry that matches the current version and mode is used; if none match, the folder is unavailable.</p>
+<p>Do not combine <code>folder_params</code> with a top-level <code>version</code> on the same folder. The selected <code>folder_params</code> entry supplies the effective version range and overrides the top-level value.</p>
+<p>Use separate, non-overlapping entries to describe a folder that is available in disjoint version ranges. An entry can also provide folder parameters, such as <code>wlst_type</code> or <code>wlst_paths</code>, when their values differ by version or mode. Do not include <code>folders</code> or <code>attributes</code> in a <code>folder_params</code> entry.</p>
+<p>For example, this folder is available from the listed PSU through releases before 14.1.1, and again in 26.1 and later. It is unavailable in the gap between those ranges.</p>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#e6db74">&#34;folder_params&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> [
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[12.2.1.4.0.260625,14.1.1)&#34;</span>, <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span> },
+</span></span><span style="display:flex;"><span>    { <span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[26.1,)&#34;</span>,                    <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span> }
+</span></span><span style="display:flex;"><span>]</span></span></code></pre></div>
 <h4 id="folders"><code>folders</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>Nested WLST MBean types for the current MBean are listed here. Each has a domain model type name, followed by its own JSON keyed elements.</p>
 <h4 id="wlst_attributes_path"><code>wlst_attributes_path</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
@@ -368,8 +377,8 @@ into the domain.</li>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1785384918" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1785384918" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1785434246" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1785434246" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
