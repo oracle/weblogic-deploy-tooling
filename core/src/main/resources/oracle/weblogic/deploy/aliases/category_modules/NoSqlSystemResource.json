@@ -1,0 +1,92 @@
+{
+    "copyright": "Copyright (c) 2026, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "No${Sql:SQL}SystemResource${:s}",
+    "online_bean": "weblogic.management.configuration.NoSQLSystemResourceMBean",
+    "version": "[26.1,)",
+    "child_folders_type": "multiple",
+    "short_name": "NoSQL",
+    "folders": {
+        "NoSqlResource": {
+            "wlst_type": "No${Sql:SQL}Resource",
+            "online_bean": "weblogic.nosql.descriptor.wl.NoSQLResourceBean",
+            "version": "[26.1,)",
+            "default_name_value": "%NOSQLSYSTEMRESOURCE%",
+            "folders": {
+                "Properties": {
+                    "wlst_type": "Properties",
+                    "version": "[26.1,)",
+                    "default_name_value": "${NO_NAME_0:%NOSQLRESOURCE%}",
+                    "folders": {
+                        "Property": {
+                            "wlst_type": "Propert${y:ies}",
+                            "online_bean": "weblogic.nosql.descriptor.wl.NoSQLPropertyBean",
+                            "version": "[26.1,)",
+                            "child_folders_type": "multiple",
+                            "folders": {},
+                            "attributes": {
+                                "EncryptedValueEncrypted": [ {"version": "[26.1,)", "wlst_mode": "both",   "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null, "wlst_type": "password", "get_method": "GET" } ],
+                                "Value":                   [ {"version": "[26.1,)", "wlst_mode": "both",   "wlst_name": "Value",                   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/No${Sql:SQL}Resource/%NOSQLRESOURCE%/Properties/%PROPERTIES%/Propert${y:ies}/%PROPERTY%"
+                            }
+                        }
+                    },
+                    "attributes": {},
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/No${Sql:SQL}Resource/%NOSQLRESOURCE%/Properties/%PROPERTIES%"
+                    }
+                }
+            },
+            "attributes": {
+                "DatabaseType":    [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "DatabaseType",    "wlst_path": "WP001", "default_value": "${__NULL__:DOCUMENT}", "wlst_type": "string", "get_method": "GET" } ],
+                "DefaultResource": [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "DefaultResource", "wlst_path": "WP001", "default_value": "false",                       "wlst_type": "boolean" } ],
+                "JNDIName":        [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "JNDIName",        "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string", "get_method": "GET" } ],
+                "ProviderName":    [ {"version": "[26.1,)", "wlst_mode": "both", "wlst_name": "ProviderName",    "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string", "get_method": "GET" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/No${Sql:SQL}Resource/%NOSQLRESOURCE%"
+            }
+        },
+        "SubDeployment": {
+            "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
+            "version": "[26.1,)",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "CompatibilityName": [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "CompatibilityName", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "ModuleType":        [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "ModuleType",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "Notes":             [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "Notes",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "Target":            [ {"version": "[26.1,)", "wlst_mode": "offline", "wlst_name": "Target",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                       {"version": "[26.1,)", "wlst_mode": "online",  "wlst_name": "Targets",           "wlst_path": "WP002", "default_value": null,    "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                "Untargeted":        [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "Untargeted",        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                "WP002": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
+            }
+        }
+    },
+    "attributes": {
+        "CompatibilityName":       [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "CompatibilityName",       "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "DeploymentOrder":         [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "DeploymentOrder",         "wlst_path": "WP001", "default_value": 100,  "wlst_type": "integer" } ],
+        "DeploymentPrincipalName": [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "DeploymentPrincipalName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "ModuleType":              [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "ModuleType",              "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "Notes":                   [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "PartitionName":           [ {"version": "[26.1,)", "wlst_mode": "online",  "wlst_name": "PartitionName",           "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "get_method": "GET", "access": "IGNORED" } ],
+        "SourcePath":              [ {"version": "[26.1,)", "wlst_mode": "both",    "wlst_name": "SourcePath",              "wlst_path": "WP001", "default_value": null, "derived_default": true, "wlst_type": "string", "uses_path_tokens": "true" } ],
+        "Target":                  [ {"version": "[26.1,)", "wlst_mode": "offline", "wlst_name": "Target",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                     {"version": "[26.1,)", "wlst_mode": "online",  "wlst_name": "Targets",                 "wlst_path": "WP002", "default_value": null, "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%",
+        "WP002": "/No${Sql:SQL}SystemResource${:s}/%NOSQLSYSTEMRESOURCE%/Targets"
+    }
+}

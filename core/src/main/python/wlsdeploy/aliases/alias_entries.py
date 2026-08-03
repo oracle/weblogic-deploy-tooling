@@ -69,6 +69,7 @@ from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE
 from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
+from wlsdeploy.aliases.model_constants import NO_SQL_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import OPSS_INITIALIZATION
 from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import PRODUCTION_REDEPLOYMENTS
@@ -161,6 +162,7 @@ class AliasEntries(object):
         MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE,
         MANAGED_THREAD_FACTORY_TEMPLATE,
         'MessagingBridge',
+        NO_SQL_SYSTEM_RESOURCE,
         ODL_CONFIGURATION,
         OHS,
         'OptionalFeatureDeployment',

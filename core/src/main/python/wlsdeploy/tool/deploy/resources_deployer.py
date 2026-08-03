@@ -1,11 +1,12 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.aliases.model_constants import MANAGED_EXECUTOR_SERVICE_TEMPLATE
 from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE
 from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
+from wlsdeploy.aliases.model_constants import NO_SQL_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import SHUTDOWN_CLASS
 from wlsdeploy.aliases.model_constants import STARTUP_CLASS
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -81,6 +82,9 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_path_services(self._resources, location)
         common_deployer.add_jolt_connection_pools(self._resources, location)
         common_deployer.add_wtc_servers(self._resources, location)
+
+        no_sql_system_resources = dictionary_utils.get_dictionary_element(self._resources, NO_SQL_SYSTEM_RESOURCE)
+        self._add_named_elements(NO_SQL_SYSTEM_RESOURCE, no_sql_system_resources, location)
 
         jms_deployer = JmsResourcesDeployer(self.model, self.model_context, self.aliases, wlst_mode=self.wlst_mode)
         jms_deployer.add_jms_system_resources(self._resources, location)
