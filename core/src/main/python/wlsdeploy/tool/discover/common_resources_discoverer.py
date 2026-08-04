@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -64,6 +64,8 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_jdbc_stores()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_path_services()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self._get_named_resources(model_constants.NO_SQL_SYSTEM_RESOURCE)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
