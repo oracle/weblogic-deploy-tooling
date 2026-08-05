@@ -26,6 +26,18 @@ Maven may need approval/escalation because `oci-maven-plugin` writes under `~/.m
 
 After the run, summarize `target/reportOnline-<version>.txt` and `target/reportOffline-<version>.txt`.
 
+## Confirming Verification Completion
+
+Do not treat the presence, timestamp, or contents of `target/reportOnline-<version>.txt` or `target/reportOffline-<version>.txt` as proof that the current verification run is complete; a prior run can leave stale reports and the current verifier writes reports before its final result is known.
+
+Wait for the `mvn ... verify` command to exit and use its final exit status as the pass/fail result. On success, also confirm that both completion markers exist:
+
+`target/verify-status/doVerifyOnline`
+
+`target/verify-status/doVerifyOffline`
+
+The final `verifyVerification.sh` phase checks these markers and returns a nonzero status when either verification failed. Use the reports only after this completion check, to summarize diagnostics.
+
 ## Alias Curly-Brace Values
 
 When fixing alias verify failures, remember that alias string fields can use curly-brace mode substitutions:
