@@ -64,7 +64,7 @@ For example, when offline changed from `null` to `disabled` at 26.1 while online
 
 ```text
 mvn -B -pl core resources:resources
-mvn -B -pl core wlst-test:test@python-tests
+mvn -B -pl core process-test-resources wlst-test:test@python-tests
 ```
 
 - When the required WLS and OCI artifacts are available, rerun the relevant offline or online integration verification as described in `integration-tests/alias-test/AGENTS.md`.

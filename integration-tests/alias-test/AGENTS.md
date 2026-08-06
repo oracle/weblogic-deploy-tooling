@@ -4,6 +4,12 @@
 
 Run from `integration-tests/alias-test/verify`.
 
+### Resolve the WebLogic Version First
+
+`wls_version` must be the exact canonical version used by the generated alias-test files; Maven accepts only a four- to six-component version number. Do not first invoke Maven with an abbreviated release name such as `26.1` to discover the required format.
+
+Before running the verifier, look up the requested release in the repository's generation pipeline configuration. For development releases, inspect `integration-tests/alias-test/Jenkinsfile.generate-development` (for example, it maps `26.1` to `26.1.0.0.0`). Use that exact value for `-Dwls_version` and for the report filenames. If the requested release is not listed there, obtain its canonical value from the applicable generation/verify pipeline configuration or ask the requester; do not infer the number of trailing components.
+
 For an initial verification run, install WDT and use generated-file download:
 
 `mvn -B verify -DskipTests=true -Dalias-test-skipITs=false -Dalias_test_tenancy=<oci_namespace> -Dalias_test_oci_profile=<oci_profile> -Dwls_version=<version>`
