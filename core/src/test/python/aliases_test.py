@@ -888,6 +888,22 @@ class AliasesTestCase(unittest.TestCase):
                                  'Unexpected availability for %s mode and WLS %s: %s' %
                                  (wlst_mode, wls_version, message))
 
+    def testBatchConfigFolderVersionRanges(self):
+        location = LocationContext()
+        expected_results = [
+            ('12.1.3', False),
+            ('12.2.1', True),
+            ('15.1.1', True)
+        ]
+
+        for wlst_mode in [WlstModes.OFFLINE, WlstModes.ONLINE]:
+            for wls_version, expected_valid in expected_results:
+                aliases = Aliases(self.model_context, wlst_mode=wlst_mode, wls_version=wls_version)
+                result, message = aliases.is_valid_model_folder_name(location, FOLDERS.BATCH_CONFIG)
+                self.assertEqual(result == ValidationCodes.VALID, expected_valid,
+                                 'Unexpected availability for %s mode and WLS %s: %s' %
+                                 (wlst_mode, wls_version, message))
+
     def testBooleanDefaultValues(self):
         location = LocationContext().append_location(FOLDERS.RESTFUL_MANAGEMENT_SERVICES, DOMAIN='mydomain')
         name, value = self.aliases.get_model_attribute_name_and_value(location, 'JavaServiceResourcesEnabled', 'false')

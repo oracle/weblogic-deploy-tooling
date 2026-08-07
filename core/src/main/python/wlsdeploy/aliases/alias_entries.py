@@ -53,6 +53,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ALLOW_LIST
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import BATCH_CONFIG
 from wlsdeploy.aliases.model_constants import CALLOUT
 from wlsdeploy.aliases.model_constants import CUSTOM_RESOURCE
 from wlsdeploy.aliases.model_constants import DB_CLIENT_DATA_DIRECTORY
@@ -115,6 +116,7 @@ class AliasEntries(object):
     __topology_top_level_folders = [
         'AdminConsole',
         ALLOW_LIST,
+        BATCH_CONFIG,
         CALLOUT,
         'CdiContainer',
         'Cluster',
@@ -286,6 +288,7 @@ class AliasEntries(object):
         """
         result = list(self.__topology_top_level_folders)
         if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.2.1'):
+            result.remove(BATCH_CONFIG)
             result.remove('VirtualTarget')
             if not string_utils.is_weblogic_version_or_above(self._wls_version, '12.1.2'):
                 result.remove('RestfulManagementServices')
