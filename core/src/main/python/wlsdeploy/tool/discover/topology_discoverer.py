@@ -414,6 +414,8 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.ALLOW_LIST)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.BATCH_CONFIG)
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.CDI_CONTAINER)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.FEATURE_COMPATIBILITY)

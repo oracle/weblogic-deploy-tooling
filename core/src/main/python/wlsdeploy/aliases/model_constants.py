@@ -34,6 +34,7 @@ ATP_TEMPORARY_TABLESPACE = 'atp.temp.tablespace'  # deprecated field name in 4.0
 AUDITOR = 'Auditor'
 AUTHENTICATION_PROVIDER = 'AuthenticationProvider'
 AUTHORIZER = 'Authorizer'
+BATCH_CONFIG = 'BatchConfig'
 CALCULATED_LISTEN_PORTS = 'CalculatedListenPorts'
 CALLOUT = 'Callout'
 CAPACITY = 'Capacity'
