@@ -1,4 +1,6 @@
-def versions_to_generate = [ "26.1.0.0.0" ]
+import groovy.transform.Field
+
+@Field def versions_to_generate = [ "26.1.0.0.0" ]
 
 pipeline {
     agent any

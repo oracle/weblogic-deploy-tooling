@@ -1,5 +1,7 @@
-def versions_to_verify = []
-def build_failed_email_body = []
+import groovy.transform.Field
+
+@Field def versions_to_verify = []
+@Field def build_failed_email_body = []
 
 def computeVerifyVersions(String existingFiles) {
     def fileList = existingFiles.readLines()
