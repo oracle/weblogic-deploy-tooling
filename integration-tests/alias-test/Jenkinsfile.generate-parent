@@ -1,4 +1,6 @@
-def versions_to_generate = []
+import groovy.transform.Field
+
+@Field def versions_to_generate = []
 
 def computeGenerateVersions(String versions, String existingFiles, String regenerate) {
     def versionList = versions.readLines()
