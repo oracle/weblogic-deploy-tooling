@@ -13,6 +13,9 @@
     ],
     "folders": {},
     "attributes": {
+        "IIOPTypedReadResolveProxyValidationEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "I${iop:IOP}TypedReadResolveProxyValidationEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+        ],
         "IIOPUnauthenticatedServiceContextValueTypeFilteringEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
