@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.4.5"
 date = 2024-01-09T18:27:38-05:00
-weight = 52
+weight = 53
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.4.6
+### Changes in Release 4.4.5
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,15 +17,12 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1883 - Added support for new top-level `FeatureCompatibility` folder.
-- #1899 - Added support for July 2026 PSUs.
-- #1905 - Added support for top-level `BatchConfig` folder.
-- #1908 - Added support for August 2026 CSPUs.
+- #1874 - Added support for production redeployment of applications.
+- #1878 - Added support for variable use within the variables file.
+- #1878 - Added support for April 2026 PSUs.
 
 #### Bug Fixes
-- #1881 - Fixing encoding issues when writing variables file.
-- #1890 - Fixed an issue with JMS `ForeignServer` `ConnectionURL` attribute so that it supports both files and URLs.
-- #1893 - Fixed archive file handling to support large archive file copies.
+None
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
