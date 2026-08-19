@@ -17,32 +17,52 @@
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "I${iop:IOP}TypedReadResolveProxyValidationEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "IIOPUnauthenticatedServiceContextValueTypeFilteringEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.260728,15.1.1)", "wlst_mode": "online", "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "JndiAdditionalFactoriesAllowListsEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.260728,15.1.1)", "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "JndiBindingAuthorizationPolicyEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.260728,15.1.1)", "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}BindingAuthorizationPolicyEnabled",                     "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "JndiOutboundConnectionsAllowListEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.260728,15.1.1)", "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}OutboundConnectionsAllowListEnabled",                   "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "Notes": [
             { "version": "[12.2.1.4.0.260625,14.1.1)", "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   },
             { "version": "[14.1.1.0.0.260625,14.1.2)", "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   },
             { "version": "[14.1.2.0.0.260622,15.1.1)", "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   },
-            { "version": "[15.1.1.0.0.260625,26.1)",   "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   },
-            { "version": "[26.1,)",                    "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   }
+            { "version": "[15.1.1.0.0.260625,)",       "wlst_mode": "both", "wlst_name": "Notes",                                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"   }
         ],
         "SerializedWorkContextMaximumSize": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer"   }
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer"   },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer"   }
         ],
         "StrictReplicationAuthorizationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictReplicationAuthorizationEnabled",                             "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" }
         ],
         "T3RouteOnlyToTrustedServersEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.260728,15.1.1)", "wlst_mode": "online", "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+            { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "WorkContextClassValidationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "WorkContextClassValidationEnabled",                                 "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
