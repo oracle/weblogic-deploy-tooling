@@ -23,7 +23,7 @@ None
 - #1908 - Added support for August 2026 CSPUs.
 
 #### Bug Fixes
-- #1881 - Fixing encoding issues when writing variables file.
+- #1881 - Fixed encoding issues when writing variables file.
 - #1890 - Fixed an issue with JMS `ForeignServer` `ConnectionURL` attribute so that it supports both files and URLs.
 - #1893 - Fixed archive file handling to support large archive file copies.
 
