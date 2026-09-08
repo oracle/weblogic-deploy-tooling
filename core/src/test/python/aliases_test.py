@@ -442,7 +442,7 @@ class AliasesTestCase(unittest.TestCase):
         location.pop_location()
         location.append_location(FOLDERS.JDBC_CONNECTION_POOL_PARAMS)
         add_default_token_value(location, self.aliases)
-        model_attribute_name = 'CountOfTestFailuresTillFlush'
+        model_attribute_name = 'WrapJdbc'
         earliest_version = '12.1.2'
         path = self.aliases.get_model_folder_path(location)
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
