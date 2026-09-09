@@ -51,6 +51,13 @@ CONVERT_TO_DELIMITED_TYPES = [alias_constants.LIST, alias_constants.JARRAY,
                               alias_constants.ALIAS_MAP_TYPES, alias_constants.DICTIONARY]
 CONVERT_TO_BOOLEAN_TYPES = [alias_constants.INTEGER, alias_constants.STRING, UNKNOWN]
 
+# Attributes in this table are intentionally unavailable to WDT even though WLS reports them.
+# An entry is skipped only when its effective alias access is IGNORED.  Add an entry only for a
+# confirmed WLS behavior that cannot be represented by normal alias version or access metadata.
+IGNORED_ATTRIBUTE_VERIFICATION_EXCEPTIONS = {
+    '/FeatureCompatibility': ['StrictReplicationAuthorizationEnabled']
+}
+
 VERIFY_RANGE = range(1000, 1999)
 WARN_RANGE = range(5000, 5999)
 ERROR_RANGE = range(2000, 8999)
@@ -85,7 +92,6 @@ ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY = 4001
 ERROR_ATTRIBUTE_INCORRECT_CASE = 4002
 ERROR_ATTRIBUTE_INVALID_VERSION = 4003
 ERROR_ATTRIBUTE_NOT_READONLY = 4004
-ERROR_ATTRIBUTE_NOT_READONLY_VERSION = 4005
 ERROR_ATTRIBUTE_READONLY = 4006
 ERROR_ATTRIBUTE_PASSWORD_NOT_MARKED = 4007
 ERROR_ATTRIBUTE_RESTART = 4008
@@ -109,6 +115,8 @@ ERROR_ATTRIBUTE_SHOULD_NOT_BE_COMPUTED = 4027
 ERROR_ATTRIBUTE_WRONG_PROD_DEFAULT_VALUE = 4028
 ERROR_ATTRIBUTE_WRONG_SECURE_DEFAULT_VALUE = 4029
 ERROR_ATTRIBUTE_SHOULD_BE_COMPUTED_OR_ALT_DEFAULTS = 4030
+ERROR_ATTRIBUTE_ACCESS_IGNORED_READWRITE = 4031
+ERROR_ATTRIBUTE_ACCESS_RO_READWRITE = 4032
 
 MSG_MAP = {
     TESTED_MBEAN_FOLDER:                           'Verified',
@@ -128,7 +136,8 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_INCORRECT_CASE:                'Attribute case incorrect',
     ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY:   'Readonly attribute not found in aliases',
     ERROR_ATTRIBUTE_READONLY:                      'Attribute is marked readwrite in the alias but read-only in WLST',
-    ERROR_ATTRIBUTE_NOT_READONLY_VERSION:          'Attribute is marked readonly or is invalid version range',
+    ERROR_ATTRIBUTE_ACCESS_IGNORED_READWRITE:      'Alias access is IGNORED but WLS reports readwrite',
+    ERROR_ATTRIBUTE_ACCESS_RO_READWRITE:           'Alias access is RO but WLS reports readwrite',
     ERROR_ATTRIBUTE_NOT_READONLY:                  'Attribute is not marked readwrite',
     ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE:           'Attribute wrong default value',
     ERROR_ATTRIBUTE_WRONG_PROD_DEFAULT_VALUE:      'Attribute has wrong production default value',
@@ -471,6 +480,14 @@ class Verifier(object):
                         # we don't need to omit these from the generated file any longer.
                         continue
 
+                    if self._is_ignored_attribute_verification_exception(location, generated_attribute):
+                        if generated_attribute in unprocessed_alias_list:
+                            unprocessed_alias_list.remove(generated_attribute)
+                        _logger.fine('Skipping ignored attribute verification exception {0} at location {1}',
+                                     generated_attribute, location.get_folder_path(), class_name=CLASS_NAME,
+                                     method_name=_method_name)
+                        continue
+
                     if generated_attribute in unprocessed_alias_list:
                         unprocessed_alias_list.remove(generated_attribute)
 
@@ -515,6 +532,24 @@ class Verifier(object):
             generated_number_of_attributes = 0
 
         self._add_info(location, TESTED_MBEAN_FOLDER, message=str(generated_number_of_attributes) + ' attributes')
+
+    def _is_ignored_attribute_verification_exception(self, location, generated_attribute):
+        """
+        Return True when the generated attribute is a configured verification exception and its effective alias
+        access is IGNORED.  The latter check prevents an exception entry from bypassing validation if the alias is
+        later changed to read-only or readwrite.
+        """
+        attribute_exceptions = IGNORED_ATTRIBUTE_VERIFICATION_EXCEPTIONS.get(location.get_folder_path(), [])
+        if generated_attribute not in attribute_exceptions:
+            return False
+
+        try:
+            # Ignored aliases have no model name in the default lookup, but do have one when explicitly included.
+            return self._alias_helper.get_model_attribute_name(location, generated_attribute) is None and \
+                   self._alias_helper.get_model_attribute_name(location, generated_attribute,
+                                                               exclude_ignored=False) is not None
+        except AliasException:
+            return False
 
     def _get_alias_attribute_map_for_location(self, location):
         wlst_name_map = None
@@ -574,27 +609,28 @@ class Verifier(object):
         exists, model_attribute_name, rod = \
             self._does_alias_attribute_exist(location, generated_attribute, generated_attribute_info, alias_name_map)
         if exists:
-            if model_attribute_name is None or rod:
-                # if the alias attribute is correctly identified as read-only, it's not an error, but we cannot
-                # verify any of the other attribute information using aliases methods. And since its read-only
-                # we don't really care about any of the attribute information. This is also true for clear
-                # text password fields.
-                if not rod:
-                    exists = False
-                # clear text attributes (don't have Encrypted on the end) are not defined in the definitions
-                # they are only artificially known and ignored by alias definitions
+            # An ignored alias has no model attribute name.  It is distinct from a read-only alias,
+            # which has a model name but is flagged by the RO access map.
+            if model_attribute_name is None:
+                exists = False
                 read_only = \
                     self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info,
                                                           alias_get_required_attribute_list)
-                if read_only is not None:
-                    if not read_only and not _is_clear_text_password(generated_attribute):
-                        if CMO_READ_TYPE in generated_attribute_info and \
-                                generated_attribute_info[CMO_READ_TYPE] == READ_ONLY:
-                            # if CMO_READ_TYPE is read only, no error...
-                            pass
-                        else:
-                            self._add_error(location, ERROR_ATTRIBUTE_NOT_READONLY_VERSION,
-                                            attribute=generated_attribute)
+                if read_only is not None and not read_only and not _is_clear_text_password(generated_attribute):
+                    if CMO_READ_TYPE not in generated_attribute_info or \
+                            generated_attribute_info[CMO_READ_TYPE] != READ_ONLY:
+                        self._add_error(location, ERROR_ATTRIBUTE_ACCESS_IGNORED_READWRITE,
+                                        attribute=generated_attribute)
+            elif rod:
+                # A correctly identified read-only alias does not need its remaining details verified.
+                read_only = \
+                    self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info,
+                                                          alias_get_required_attribute_list)
+                if read_only is not None and not read_only and not _is_clear_text_password(generated_attribute):
+                    if CMO_READ_TYPE not in generated_attribute_info or \
+                            generated_attribute_info[CMO_READ_TYPE] != READ_ONLY:
+                        self._add_error(location, ERROR_ATTRIBUTE_ACCESS_RO_READWRITE,
+                                        attribute=generated_attribute)
             else:
                 if self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info,
                                                          alias_get_required_attribute_list):

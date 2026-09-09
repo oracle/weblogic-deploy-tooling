@@ -70,6 +70,9 @@
         "WorkContextClassValidationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "WorkContextClassValidationEnabled",                                                      "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
+        "WorkContextInputMaximumASCIIFieldSize": [
+            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "WorkContextInputMaximumASCIIFieldSize",                                             "wlst_path": "WP001", "default_value": -1,    "wlst_type": "integer" }
+        ],
         "WLDFScriptActionPathRestrictionEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Wldf:WLDF}ScriptActionPathRestrictionEnabled",                                         "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
