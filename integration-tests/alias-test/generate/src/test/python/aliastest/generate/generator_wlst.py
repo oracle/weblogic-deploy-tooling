@@ -16,31 +16,12 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
 CREDENTIAL_FIELD_EXCEPTIONS = [
-    'ClearTextCredentialAccessEnabled'.lower(),
-    'CORSAllowedCredentials'.lower(),
-    'CredentialGenerated'.lower(),
-    'CredentialSet'.lower(),
-    'CredentialMappingDeploymentEnabled'.lower(),
-    'CredentialMappingEnabled'.lower(),
     'CredentialPolicy'.lower(),
-    'DebugSecurityPasswordPolicy'.lower(),
     'DefaultCredentialProviderSTSURI'.lower(),
-    'DeployCredentialMappingIgnored'.lower(),
-    'EnforceValidBasicAuthCredentials'.lower(),
-    'KeyEncrypted'.lower(),
-    'MaxPasswordLength'.lower(),
-    'MinimumPasswordLength'.lower(),
-    'MinPasswordLength'.lower(),
     'PasswordAlgorithm'.lower(),
-    'PasswordDigestEnabled'.lower(),
     'PasswordStyle'.lower(),
-    'PasswordStyleRetained'.lower(),
-    'PlaintextPasswordsEnabled'.lower(),
     'SQLGetUsersPassword'.lower(),
-    'SQLSetUserPassword'.lower(),
-    'UseDatabaseCredentials'.lower(),
-    'UsePasswordIndirection'.lower(),
-    'WarnOnUsernamePasswords'.lower()
+    'SQLSetUserPassword'.lower()
 ]
 
 # PrefixName, UriPrefix, EngineId are not file system paths, but need tokenizing for cases like /VirtualTarget-12153
