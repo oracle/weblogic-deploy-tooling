@@ -156,9 +156,10 @@ class GeneratorBase(object):
                 attribute_name, cmo_value, cmo_attr_type, class_name=self.__class_name, method_name=_method_name)
 
         get_attr_type, get_value = self._get_get_type_and_value(method_helper, attribute_name)
+        get_is_credential_field = False
         if get_value != FAIL:
-            if (get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD) or \
-               generator_wlst.is_credential_field(attribute_name):
+            get_is_credential_field = self._is_credential_field(attribute_name, get_attr_type)
+            if (get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD) or get_is_credential_field:
                 get_attr_type = alias_constants.PASSWORD
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
@@ -169,13 +170,18 @@ class GeneratorBase(object):
 
         lsa_attr_type, lsa_value = self._get_lsa_type_and_value(lsa_map, attribute_name)
         if lsa_value != FAIL:
+            cmo_is_credential_field = self._is_credential_field(attribute_name, cmo_attr_type)
+            fallback_is_credential_field = cmo_attr_type == UNKNOWN and get_attr_type == UNKNOWN and \
+                                           generator_wlst.is_credential_field(attribute_name)
             if lsa_value is not None and \
-                    (cmo_attr_type == alias_constants.PASSWORD or generator_wlst.is_credential_field(attribute_name)) and \
+                    (cmo_attr_type == alias_constants.PASSWORD or
+                     cmo_is_credential_field or get_is_credential_field or fallback_is_credential_field) and \
                     (self._is_string_type(lsa_attr_type) and lsa_value.startswith('****')):
                 lsa_value = None
                 dictionary[LSA_TYPE] = alias_constants.PASSWORD
             else:
-                dictionary[LSA_TYPE] = self.type_it(mbean_type, attribute_name, lsa_attr_type)
+                dictionary[LSA_TYPE] = self.type_it(mbean_type, attribute_name, lsa_attr_type,
+                                                    apply_credential_name=False)
             dictionary[LSA_DEFAULT] = self.convert_attribute(attribute_name, lsa_value, value_type=dictionary[LSA_TYPE])
             self._add_lsa_readwrite(dictionary, attribute_name)
             self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4} and {5} is {6}', attribute_name, LSA_TYPE,
@@ -409,7 +415,7 @@ class GeneratorBase(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=return_value)
         return return_value
 
-    def type_it(self, mbean_type, attr_name, attr_type):
+    def type_it(self, mbean_type, attr_name, attr_type, apply_credential_name=True):
         """
         Return the aliases name for the domain attribute type
         :param mbean_type: MBean type for logging purposes
@@ -428,7 +434,7 @@ class GeneratorBase(object):
             return_type = attr_type
         elif attr_type == int or 'java.lang.Integer' in str(attr_type) or 'int' in str(attr_type):
             return_type = alias_constants.INTEGER
-        elif generator_wlst.is_credential_field(attr_name):
+        elif apply_credential_name and self._is_credential_field(attr_name, attr_type):
             return_type = alias_constants.PASSWORD
         elif attr_type in [str, unicode] or str(attr_type) == "<type 'java.lang.String'>" or \
                 attr_type == 'java.lang.String' or 'string' in str(attr_type):
@@ -447,7 +453,7 @@ class GeneratorBase(object):
                 attr_type == 'java.util.Properties' or attr_type == 'java.util.Map' or \
                 str(attr_type) == "<type 'java.util.Map'>":
             return_type = alias_constants.PROPERTIES
-        elif '[B' in str(attr_type) or "array('b'" in str(attr_type):
+        elif attr_type == 'byte[]' or '[B' in str(attr_type) or "array('b'" in str(attr_type):
             return_type = alias_constants.PASSWORD
         elif 'Enum' in str(attr_type):
             return_type = alias_constants.STRING
@@ -579,6 +585,13 @@ class GeneratorBase(object):
 
     def _is_string_type(self, attribute_type):
         return attribute_type in [str, unicode] or attribute_type == 'java.lang.String'
+
+    def _is_credential_field(self, attribute_name, attribute_type):
+        return self._is_string_attribute_type(attribute_type) and generator_wlst.is_credential_field(attribute_name)
+
+    def _is_string_attribute_type(self, attribute_type):
+        return attribute_type in [str, unicode] or str(attribute_type) == "<type 'java.lang.String'>" or \
+               attribute_type == 'java.lang.String' or 'string' in str(attribute_type)
 
     def _is_clear_text_password(self, helper):
         _method_name = '_is_clear_text_password'
