@@ -57,6 +57,9 @@
         "StrictReplicationAuthorizationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictReplicationAuthorizationEnabled",                                                  "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}", "access": "IGNORED", "comment":  "This attribute is on by default starting in 26.1 and not configurable" }
         ],
+        "T3LegacyCrossDomainCredentialJVMIDReplayProtectionEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "T3LegacyCrossDomainCredentialJVMIDReplayProtectionEnabled",                           "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+        ],
         "T3RouteOnlyToTrustedServersEnabled": [
             { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
             { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "T3RouteOnlyToTrustedServersEnabled",                                "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
@@ -70,8 +73,8 @@
         "WorkContextClassValidationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "WorkContextClassValidationEnabled",                                                      "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
-        "WorkContextInputMaximumASCIIFieldSize": [
-            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "WorkContextInputMaximumASCIIFieldSize",                                             "wlst_path": "WP001", "default_value": -1,    "wlst_type": "integer" }
+        "WorkContextInputMaximumAsciiFieldSize": [
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "WorkContextInputMaximum${Ascii:ASCII}FieldSize",                                     "wlst_path": "WP001", "default_value": -1,    "wlst_type": "integer" }
         ],
         "WLDFScriptActionPathRestrictionEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Wldf:WLDF}ScriptActionPathRestrictionEnabled",                                         "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
@@ -80,7 +83,7 @@
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Wsat:WSAT}IgnoreUnknownReplayCompletionEnabled",                                       "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ],
         "WsatRegistrationSecretEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "${Wsat:WSAT}RegistrationSecretEnabled",                                                    "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Wsat:WSAT}RegistrationSecretEnabled",                                                      "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
         ]
     },
     "wlst_attributes_path": "WP001",
