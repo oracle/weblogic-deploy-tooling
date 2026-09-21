@@ -10,7 +10,10 @@ from sets import Set
 
 from java.io import File
 from java.io import IOException
+from java.lang import IllegalArgumentException
 from java.security import NoSuchAlgorithmException
+from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WdtJaxbException
@@ -270,7 +273,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 config_targets = self._get_config_targets()
 
                 app_hash, plan_hash = \
-                    self.__get_app_and_plan_hash(absolute_source_path, absolute_plan_path, local_download_root)
+                    self.__get_app_and_plan_hash(app, absolute_source_path, absolute_plan_path, local_download_root)
                 _update_ref_dictionary(ref_dictionary, app, absolute_source_path, app_hash, config_targets,
                                        absolute_plan_path=absolute_plan_path, deploy_order=deployment_order,
                                        plan_hash=plan_hash, version_identifier=version_identifier)
@@ -338,7 +341,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         if self.model_context.is_remote() or self.model_context.is_ssh():
             lib_hash = None
         else:
-            lib_hash = self.__get_file_hash(absolute_source_path)
+            lib_hash = self.__get_deployment_hash(absolute_source_path, LIBRARY, lib, SOURCE_PATH)
 
         if string_utils.to_boolean(runtime_attributes['Referenced']) is True:
             referenced_path = library_runtime_path + lib + '/ReferencingRuntimes/'
@@ -398,7 +401,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result = absolute_plan_path)
         return absolute_plan_path
 
-    def __get_app_and_plan_hash(self, absolute_source_path, absolute_plan_path, local_download_root):
+    def __get_app_and_plan_hash(self, app, absolute_source_path, absolute_plan_path, local_download_root):
         _method_name = '__get_app_and_plan_hash'
         self.logger.entering(absolute_source_path, absolute_plan_path, local_download_root,
                              class_name=self._class_name, method_name=_method_name)
@@ -407,24 +410,35 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         plan_hash = None
         if self.model_context.is_ssh():
             local_download_app_path = \
-                self.path_helper.download_file_from_remote_server(self.model_context, absolute_source_path,
-                                                                  local_download_root, 'apps')
+                self.__download_existing_app_file(app, absolute_source_path, local_download_root, 'apps', SOURCE_PATH)
             local_download_plan_path = \
-                self.path_helper.download_file_from_remote_server(self.model_context, absolute_plan_path,
-                                                                  local_download_root, 'plans')
+                self.__download_existing_app_file(app, absolute_plan_path, local_download_root, 'plans', PLAN_PATH)
             if local_download_app_path:
-                app_hash = self.__get_file_hash(local_download_app_path)
+                app_hash = self.__get_deployment_hash(local_download_app_path, APPLICATION, app, SOURCE_PATH,
+                                                      remote_path=absolute_source_path)
             if local_download_plan_path:
-                plan_hash = self.__get_file_hash(local_download_plan_path)
+                plan_hash = self.__get_deployment_hash(local_download_plan_path, APPLICATION, app, PLAN_PATH,
+                                                       remote_path=absolute_plan_path)
         elif not self.model_context.is_remote():
-            app_hash = self.__get_file_hash(absolute_source_path)
+            app_hash = self.__get_deployment_hash(absolute_source_path, APPLICATION, app, SOURCE_PATH)
             if absolute_plan_path is not None:
-                plan_hash = self.__get_file_hash(absolute_plan_path)
+                plan_hash = self.__get_deployment_hash(absolute_plan_path, APPLICATION, app, PLAN_PATH)
             else:
                 plan_hash = None
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=[app_hash, plan_hash])
         return app_hash, plan_hash
+
+    def __download_existing_app_file(self, app, remote_path, download_root, file_type, attribute_name):
+        _method_name = '__download_existing_app_file'
+        try:
+            return self.path_helper.download_file_from_remote_server(
+                self.model_context, remote_path, download_root, file_type)
+        except (BundleAwareException, IOException, IOError, OSError), e:
+            local_path = self.path_helper.local_join(download_root, file_type)
+            ex = self.__create_existing_file_exception(APPLICATION, app, attribute_name, local_path, e, remote_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
     def _get_config_targets(self):
         self.wlst_helper.cd(TARGETS)
@@ -666,8 +680,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
     def _update_library_build_strategy_based_on_hashes(self, existing_lib_targets_set, existing_src_path, lib, lib_dict,
                                                        model_libs, model_src_path, model_targets_set,
                                                        update_library_list, versioned_name):
-        model_lib_hash = self.__get_hash(model_src_path)
-        existing_lib_hash = self.__get_file_hash(existing_src_path)
+        if dictionary_utils.get_element(lib_dict, SOURCE_PATH) is None:
+            # A sparse model inherits the resolved source path from the existing deployment.
+            model_lib_hash = self.__get_deployment_hash(model_src_path, LIBRARY, versioned_name, SOURCE_PATH)
+        else:
+            model_lib_hash = self.__get_deployment_hash(model_src_path, LIBRARY, lib, SOURCE_PATH, from_model=True)
+        existing_lib_hash = self.__get_deployment_hash(existing_src_path, LIBRARY, versioned_name, SOURCE_PATH)
         if model_lib_hash != existing_lib_hash:
             #
             # updated library and add referencing apps to the stop list
@@ -742,13 +760,52 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 return None
 
             hash_value = FileUtils.computeHash(filename)
-        except (IOException, NoSuchAlgorithmException, WdtJaxbException), e:
+        except (IllegalArgumentException, IOException, NoSuchAlgorithmException, WdtJaxbException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=hash_value)
         return hash_value
+
+    def __get_deployment_hash(self, path, deployment_type, deployment_name, attribute_name, from_model=False,
+                              remote_path=None):
+        """
+        Calculate a strategy hash, adding deployment context to a handled failure.
+        Preserve the distinction between an unavailable file and an intentional no-hash result.
+        """
+        _method_name = '__get_deployment_hash'
+        try:
+            if from_model:
+                return self.__get_hash(path)
+            return self.__get_file_hash(path)
+        except DeployException, e:
+            if from_model:
+                ex = exception_helper.create_deploy_exception(
+                    'WLSDPLY-09360', deployment_type, deployment_name, attribute_name, path,
+                    e.getLocalizedMessage(), error=e)
+            else:
+                ex = self.__create_existing_file_exception(deployment_type, deployment_name, attribute_name,
+                                                           path, e, remote_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+    def __create_existing_file_exception(self, deployment_type, deployment_name, attribute_name, path, error,
+                                         remote_path=None):
+        location = LocationContext(self._base_location).append_location(deployment_type)
+        location.add_name_token(self.aliases.get_name_token(location), deployment_name)
+        wlst_path = self.aliases.get_wlst_attributes_path(location)
+        if hasattr(error, 'getLocalizedMessage'):
+            reason = error.getLocalizedMessage()
+        else:
+            reason = str_helper.to_string(error)
+        if remote_path is not None:
+            return exception_helper.create_deploy_exception(
+                'WLSDPLY-09361', deployment_type, deployment_name, wlst_path, attribute_name, remote_path, path,
+                reason, error=error)
+        return exception_helper.create_deploy_exception(
+            'WLSDPLY-09359', deployment_type, deployment_name, wlst_path, attribute_name, path,
+            reason, error=error)
 
     def __remove_app_from_deployment(self, model_dict, app_name, reason="delete"):
         _method_name = '__remove_app_from_deployment'
@@ -828,10 +885,14 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         model_plan_full_path = self._get_combined_model_plan_path(app_dict)
 
-        model_src_hash = self.__get_hash(model_src_path)
-        model_plan_hash = self.__get_hash(model_plan_full_path)
-        existing_src_hash = self.__get_file_hash(src_path)
-        existing_plan_hash = self.__get_file_hash(plan_path)
+        if dictionary_utils.get_element(app_dict, SOURCE_PATH) is None:
+            # A sparse model inherits the resolved source path from the existing deployment.
+            model_src_hash = self.__get_deployment_hash(model_src_path, APPLICATION, versioned_name, SOURCE_PATH)
+        else:
+            model_src_hash = self.__get_deployment_hash(model_src_path, APPLICATION, app, SOURCE_PATH, from_model=True)
+        model_plan_hash = self.__get_deployment_hash(model_plan_full_path, APPLICATION, app, PLAN_PATH, from_model=True)
+        existing_src_hash = self.__get_deployment_hash(src_path, APPLICATION, versioned_name, SOURCE_PATH)
+        existing_plan_hash = self.__get_deployment_hash(plan_path, APPLICATION, versioned_name, PLAN_PATH)
         if model_src_hash == existing_src_hash:
             if model_plan_hash == existing_plan_hash:
                 if self.__should_check_for_target_change(src_path, model_src_path):
