@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -8,6 +8,7 @@ from sets import Set
 
 from java.io import IOException
 from java.io import PrintStream
+from java.lang import IllegalArgumentException
 from java.lang import System
 from java.net import URI
 from java.net import URISyntaxException
@@ -479,8 +480,8 @@ def get_file_hash(file_name):
     _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
     try:
         result = FileUtils.computeHash(file_name)
-    except (IOException, NoSuchAlgorithmException, WdtJaxbException), e:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09108', file_name, e.getLocalizedMessage(), error=e)
+    except (IllegalArgumentException, IOException, NoSuchAlgorithmException, WdtJaxbException), e:
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09309', file_name, e.getLocalizedMessage(), error=e)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
