@@ -13,8 +13,8 @@
     ],
     "folders": {},
     "attributes": {
-        "IIOPStrictRemoteBusinessInterfaceValidationEnabled": [
-            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "IIOPStrictRemoteBusinessInterfaceValidationEnabled",                              "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
+        "IiopStrictRemoteBusinessInterfaceValidationEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "both",   "wlst_name": "${Iiop:IIOP}StrictRemoteBusinessInterfaceValidationEnabled",                    "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
         ],
         "IIOPTypedReadResolveProxyValidationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "I${iop:IOP}TypedReadResolveProxyValidationEnabled",                                      "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
