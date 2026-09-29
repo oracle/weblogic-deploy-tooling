@@ -26,6 +26,9 @@
             { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
             { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
         ],
+        "JaxwsRejectUnknownSeiOperationsEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" }
+        ],
         "JndiAdditionalFactoriesAllowListsEnabled": [
             { "version": "[12.2.1.4.0.260728,14.1.1)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
             { "version": "[14.1.1.0.0.260728,14.1.2)", "wlst_mode": "both",   "wlst_name": "${Jndi:JNDI}AdditionalFactoriesAllowListsEnabled",                  "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
@@ -59,6 +62,9 @@
         "SerializedWorkContextMaximumSize": [
             { "version": "[15.1.1.0.0.260728,26.1)",   "wlst_mode": "online", "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer"   },
             { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": 65535, "wlst_type": "integer" }
+        ],
+        "StrictClusterCompatibilityEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" }
         ],
         "StrictReplicationAuthorizationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictReplicationAuthorizationEnabled",                                                  "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}", "access": "IGNORED", "comment":  "This attribute is on by default starting in 26.1 and not configurable" }
