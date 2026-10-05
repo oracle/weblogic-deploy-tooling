@@ -1,8 +1,21 @@
 # Alias Test Guidance
 
+## Nightly Fix Branch Preflight
+
+Before editing a new nightly alias fix, check `git status --short --branch`
+and confirm the intended base branch. For a fix targeting `main`, update local
+`main` with `git pull --ff-only origin main`, then create a new fix branch from
+it before making changes. Preserve unrelated local changes and untracked files
+when switching branches. If a task branch already exists, verify its base
+instead of replacing it.
+
 ## Alias Test Verify
 
 Run from `integration-tests/alias-test/verify`.
+
+Use JDK 17 for the Maven commands in this workflow, including the core alias
+tests and installer build. Check `mvn -version` before running them; set
+`JAVA_HOME` to a JDK 17 installation if another JDK is active.
 
 ### Resolve the WebLogic Version First
 
@@ -22,10 +35,11 @@ add `-Dskip-wdt-install=true` to avoid reinstalling it.
 For verification of aliases in the current checkout, do **not** use the
 verifier's default WDT install step: it resolves and unpacks the Maven
 `weblogic-deploy-installer` snapshot, which can be older than the checkout.
-First build the workspace's `installer/target/weblogic-deploy.zip`, unpack it
-into `integration-tests/alias-test/verify/target`, then run the verifier with
-`-Dskip-wdt-install=true`. This matches the alias-test Jenkins workflow and
-ensures the verifier uses the aliases under test.
+From the repository root, build the workspace's installer with
+`mvn -B -pl installer -am package -DskipTests`, then unpack it with
+`unzip -oq installer/target/weblogic-deploy.zip -d integration-tests/alias-test/verify/target`.
+Run the verifier with `-Dskip-wdt-install=true`. This matches the alias-test
+Jenkins workflow and ensures the verifier uses the aliases under test.
 
 Do not pass `-Dskip-generated-file-download=true` unless explicitly asked to verify existing local `target` files.
 
@@ -93,3 +107,11 @@ Examples:
 - `${__NULL__:value}` means offline resolves to `null`, online resolves to `value`.
 
 Use this for small offline/online value differences in fields like `wlst_name`, `default_value`, `get_method`, `set_method`, `wlst_type`, and paths. Do not use curly braces in `wlst_mode`; split alias entries if mode availability or version ranges differ.
+
+## Internal Merge Requests
+
+For an internal OraHub MR fixing nightly alias discrepancies, commit only the
+task files with sign-off and push the fix branch. Target `main`, describe the
+failed verification and the local validation, and check the created MR. Refer
+to an existing tracking issue when there is one; do not create or require an
+issue solely for the MR when none exists.
