@@ -83,7 +83,7 @@
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictReplicationAuthorizationEnabled",                                                  "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}", "access": "IGNORED", "comment":  "This attribute is on by default starting in 26.1 and not configurable" }
         ],
         "SpringJtaDeserializationJndiLookupDisabled": [
-            { "version": "[26.1,)", "wlst_mode": "online", "wlst_name": "SpringJtaDeserializationJndiLookupDisabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" }
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "SpringJtaDeserializationJndiLookupDisabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" }
         ],
         "T3LegacyCrossDomainCredentialJVMIDReplayProtectionEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both",   "wlst_name": "T3LegacyCrossDomainCredential${Jvmid:JVMID}ReplayProtectionEnabled",                  "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
