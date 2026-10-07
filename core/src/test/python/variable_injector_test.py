@@ -8,6 +8,7 @@ import unittest
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
 import wlsdeploy.util.variables as variables
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from base_test import BaseTestCase
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.aliases import Aliases
@@ -39,6 +40,63 @@ class VariableFileHelperTest(BaseTestCase):
         })
         aliases = Aliases(self._model_context, wls_version='12.2.1.3')
         self._helper = VariableInjector(self.name, self._model_context, aliases)
+
+    def testExistingVariableFileKeepsOrderWhenAddingKey(self):
+        file_name = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-990-variable-order.properties')
+        try:
+            output = open(file_name, 'w')
+            output.write('z=old-z\na=old-a\n')
+            output.close()
+
+            variable_map = OrderedDict()
+            variable_map['z'] = 'old-z'
+            variable_map['a'] = 'old-a'
+            variable_map['b'] = 'new-b'
+            self.assertEqual(True, self._helper._write_variables_file(variable_map, file_name, False))
+            self.assertEqual(['z=old-z', 'a=old-a', 'b=new-b'], self._read_variable_properties(file_name))
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+    def testNewVariableFileSortsKeys(self):
+        file_name = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-990-new-variable-order.properties')
+        try:
+            variable_map = OrderedDict()
+            variable_map['z'] = 'last'
+            variable_map['a'] = 'first'
+            self.assertEqual(True, self._helper._write_variables_file(variable_map, file_name, False))
+            self.assertEqual(['a=first', 'z=last'], self._read_variable_properties(file_name))
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+    def testAppendingVariablesKeepsExistingKeys(self):
+        file_name = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-990-append-variable-order.properties')
+        try:
+            output = open(file_name, 'w')
+            output.write('z=old-z\na=old-a\n')
+            output.close()
+
+            variable_map = OrderedDict()
+            variable_map['b'] = 'new-b'
+            self.assertEqual(True, self._helper._write_variables_file(variable_map, file_name, True))
+            self.assertEqual(['z=old-z', 'a=old-a', 'b=new-b'], self._read_variable_properties(file_name))
+
+            additional_map = OrderedDict()
+            additional_map['c'] = 'new-c'
+            variables.write_variables(self.name, additional_map, file_name, True)
+            self.assertEqual(['z=old-z', 'a=old-a', 'b=new-b', 'c=new-c'],
+                             self._read_variable_properties(file_name))
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+    def _read_variable_properties(self, file_name):
+        variable_file = open(file_name)
+        try:
+            return [line.strip() for line in variable_file if line.strip() and not line.startswith('#')]
+        finally:
+            variable_file.close()
 
     def testSingleVariableReplacement(self):
         BaseTestCase.tearDown(self)

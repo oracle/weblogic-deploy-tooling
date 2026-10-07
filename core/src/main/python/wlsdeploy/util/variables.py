@@ -140,12 +140,16 @@ def write_variables(program_name, variable_map, file_path, append=False):
     :param program_name: name of the calling program
     :param variable_map: map or variable properties to write to file
     :param file_path: the file to which to write the properties
-    :param append: defaults to False. Append properties to the end of file
+    :param append: defaults to False. Preserve existing keys and add new properties at the end
     :raises VariableException if an error occurs while storing the variables in the file
     """
     _method_name = 'write_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
     try:
+        if append and os.path.isfile(file_path):
+            existing_map = OrderedProperties.loadPyOrderedDict(file_path)
+            existing_map.update(variable_map)
+            variable_map = existing_map
         OrderedProperties.store(variable_map, file_path, None)
     except IOException, ioe:
         _logger.fine('WLSDPLY-20007', program_name, file_path, ioe.getLocalizedMessage())
@@ -158,23 +162,40 @@ def write_variables(program_name, variable_map, file_path, append=False):
 
 def write_sorted_variables(program_name, variable_map, file_path, append=False):
     """
-    Write the dictionary of variables to the specified file, in alphabetical order by key.
+    Write new variables alphabetically, preserving the key order of an existing file.
     :param program_name: name of tool that invoked the method which will be written to the variable properties file
     :param variable_map: the dictionary of variables
     :param file_path: the file to which to write the properties
-    :param append: defaults to False. Append properties to the end of file
+    :param append: defaults to False. Preserve existing properties absent from variable_map
     :raises VariableException if an error occurs while storing the variables in the file
     """
     _method_name = 'write_sorted_variables'
     _logger.entering(program_name, file_path, append, class_name=_class_name, method_name=_method_name)
 
-    sorted_keys = variable_map.keys()
-    sorted_keys.sort()
-    sorted_map = OrderedDict()
-    for key in sorted_keys:
-        sorted_map[key] = variable_map[key]
+    try:
+        existing_map = None
+        if os.path.isfile(file_path):
+            existing_map = OrderedProperties.loadPyOrderedDict(file_path)
+    except IOException, ioe:
+        ex = exception_helper.create_variable_exception('WLSDPLY-20007', program_name, file_path,
+                                                        ioe.getLocalizedMessage(), error=ioe)
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
 
-    write_variables(program_name, sorted_map, file_path, append)
+    output_map = OrderedDict()
+    if existing_map is not None:
+        for key in existing_map.keys():
+            if key in variable_map:
+                output_map[key] = variable_map[key]
+            elif append:
+                output_map[key] = existing_map[key]
+
+    new_keys = [key for key in variable_map.keys() if key not in output_map]
+    new_keys.sort()
+    for key in new_keys:
+        output_map[key] = variable_map[key]
+
+    write_variables(program_name, output_map, file_path)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
