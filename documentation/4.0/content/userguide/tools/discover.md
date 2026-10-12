@@ -175,6 +175,15 @@ configuration files and by discovering data from the default security providers.
 
 #### Discovering passwords
 
+For WebLogic Server 26.1 and later, discovery also treats Foreign JNDI Provider `Properties` entries and Foreign JMS
+Server `JNDIProperty` values whose keys end in `.encrypted` as passwords. Without `-discover_passwords`, nonempty
+marked values are replaced with `--FIX ME--`. With `-discover_passwords`, they are decrypted using the source domain's
+`SerializedSystemIni.dat` and follow the password encryption settings described below. The `.encrypted` suffix is
+retained in the model so WebLogic Server can encrypt the values when the model is deployed.
+When `-variable_file` or `-target` is used, marked values are tokenized using the same rules as other passwords;
+ordinary properties are left unchanged. Supply the corresponding WDT passphrase when deploying models containing
+WDT-encrypted marked values.
+
 Starting in 4.1.0, the Discover Domain Tool supports discovering passwords from the domain configuration files
 (for example, config.xml and any JDBCSystemResource XML file) by adding the `-discover_passwords` flag to the
 command-line.  This feature works in both offline and online modes provided that WDT has access to the domain home

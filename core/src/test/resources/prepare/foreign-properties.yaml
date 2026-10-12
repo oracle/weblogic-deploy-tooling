@@ -1,0 +1,24 @@
+# Copyright (c) 2026, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+resources:
+    ForeignJNDIProvider:
+        provider:
+            Properties:
+                vendor.one.encrypted: '@@PROP:provider.secret@@'
+                vendor.two.encrypted: 'second-marker'
+                vendor.plain: '@@PROP:ordinary@@'
+    JMSSystemResource:
+        module:
+            JmsResource:
+                ForeignServer:
+                    foreign:
+                        JNDIProperty:
+                            vendor.jms.encrypted:
+                                Value: '@@PROP:jms.secret@@'
+                            vendor.plain:
+                                Value: '@@PROP:ordinary@@'
+    MailSession:
+        mail:
+            Properties:
+                mail.smtp.user: '@@PROP:mail.user@@'
+                mail.smtp.password: '@@PROP:mail.password@@'

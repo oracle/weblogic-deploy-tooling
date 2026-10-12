@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import array
@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.encrypt import EncryptionUtils
 
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases import foreign_jndi_utils
 from wlsdeploy.aliases import password_utils
 from wlsdeploy.aliases.alias_constants import ACCESS
 from wlsdeploy.aliases.alias_constants import ALIAS_BOOLEAN_TYPES
@@ -540,6 +541,13 @@ class Aliases(object):
                     alias_utils.convert_boolean(attribute_info[USES_PATH_TOKENS])
 
                 data_type = attribute_info[WLST_TYPE]
+                if model_attribute_value is not None and \
+                        foreign_jndi_utils.is_provider_properties(location, model_attribute_name, self._wls_version):
+                    properties = TypeUtils.convertToType(PROPERTIES, model_attribute_value).clone()
+                    for property_name in properties.keys():
+                        if foreign_jndi_utils.is_encrypted_property(property_name, self._wls_version):
+                            properties.setProperty(property_name, self.decrypt_password(properties.getProperty(property_name)))
+                    model_attribute_value = properties
                 if data_type == 'password':
                     try:
                         wlst_attribute_value = self.decrypt_password(model_attribute_value)

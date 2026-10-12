@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import array
@@ -16,9 +16,11 @@ from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import alias_constants
+from wlsdeploy.aliases import foreign_jndi_utils
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import KEY
 from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -279,13 +281,22 @@ class Discoverer(object):
         model_param, model_value = self._get_model_name_and_value(location, wlst_param, wlst_value, wlst_path)
 
         if model_value is not None:
-            _logger.finer('WLSDPLY-06107', model_param, model_value, class_name=_class_name,
+            logged_value = model_value
+            if self._is_foreign_jndi_properties(location, model_param) or \
+                    self._is_foreign_jms_property_value(location, model_param):
+                logged_value = MASKED_PASSWORD
+            _logger.finer('WLSDPLY-06107', model_param, logged_value, class_name=_class_name,
                           method_name=_method_name)
             dictionary[model_param] = model_value
 
             # tokenize the attribute if needed
             if self._credential_injector is not None and not self._is_filtered_datasource_location(location):
-                self._credential_injector.check_and_tokenize(dictionary, model_param, location)
+                injection_location = location
+                if self._is_foreign_jms_property_value(location, model_param):
+                    property_name = self._wlst_helper.get(self._aliases.get_wlst_attribute_name(location, KEY))
+                    injection_location = LocationContext(location)
+                    injection_location.add_name_token(self._aliases.get_name_token(location), property_name)
+                self._credential_injector.check_and_tokenize(dictionary, model_param, injection_location)
 
         elif model_param is None:
             _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name,
@@ -318,7 +329,9 @@ class Discoverer(object):
             wlst_type = self._aliases.get_wlst_attribute_type(location, wlst_name)
 
             logged_value = wlst_value
-            if wlst_value is not None and wlst_type == alias_constants.PASSWORD:
+            if wlst_value is not None and (wlst_type == alias_constants.PASSWORD or
+                                          self._is_foreign_jndi_properties(location, model_name) or
+                                          self._is_foreign_jms_property_value(location, model_name)):
                 logged_value = MASKED_PASSWORD
             _logger.finer('WLSDPLY-06105', wlst_name, logged_value, wlst_path,
                           class_name=_class_name, method_name=_method_name)
@@ -400,6 +413,24 @@ class Discoverer(object):
             model_value = None
 
         return model_value
+
+    def _is_foreign_jndi_properties(self, location, model_name):
+        return foreign_jndi_utils.is_provider_properties(location, model_name, self._wls_version)
+
+    def _is_encrypted_foreign_property(self, property_name):
+        return foreign_jndi_utils.is_encrypted_property(property_name, self._wls_version)
+
+    def _is_foreign_jms_property_value(self, location, model_name):
+        return foreign_jndi_utils.is_jms_property_value(location, model_name, self._wls_version)
+
+    def _get_foreign_property_password_value(self, location, property_name, model_value):
+        # WLS leaves empty marked properties unchanged. Preserve them in the model too.
+        if string_utils.is_empty(model_value):
+            return model_value
+        # The Properties descriptor representation can escape Base64 padding.
+        if isinstance(model_value, basestring):
+            model_value = model_value.replace('\\=', '=')
+        return self._get_model_password_value(location, property_name, model_value)
 
     def _get_decrypted_password_and_is_filtered_datasource(self, location, model_value):
         # only do it for templated datasource
@@ -511,6 +542,18 @@ class Discoverer(object):
             type_method = self._att_handler_map[model_name]
             if type_method is not None:
                 new_value = type_method(model_name, model_value, location)
+        if self._is_foreign_jndi_properties(location, model_name) and new_value is not None:
+            properties = new_value.copy()
+            for property_name in properties:
+                if self._is_encrypted_foreign_property(property_name):
+                    properties[property_name] = self._get_foreign_property_password_value(
+                        location, property_name, properties[property_name])
+            new_value = properties
+        elif self._is_foreign_jms_property_value(location, model_name):
+            # Offline WLST names these beans NO_NAME_*, so inspect Key rather than the folder name.
+            property_name = self._wlst_helper.get(self._aliases.get_wlst_attribute_name(location, KEY))
+            if self._is_encrypted_foreign_property(property_name):
+                new_value = self._get_foreign_property_password_value(location, property_name, new_value)
         return new_value
 
     def _find_names_in_folder(self, location):

@@ -386,7 +386,7 @@ class JmsResourcesDiscoverer(Discoverer):
                     self._populate_model_parameters(subfolder_result[property_name], location)
                 location.remove_name_token(name_token)
         location.pop_location()
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_subfolder_name)
         return model_subfolder_name, subfolder_result
 
     def _add_foreign_server_binding(self, server_name, model_name, model_value):

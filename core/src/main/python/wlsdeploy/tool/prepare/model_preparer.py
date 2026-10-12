@@ -67,6 +67,7 @@ class ModelPreparer:
             if variables.is_variable_string(credential_caches[key]):
                 credential_caches[key] = variables.substitute_value(credential_caches[key],
                                                                     original_variables, self.model_context)
+        self.credential_injector.decrypt_foreign_property_secrets()
 
     def _apply_filter_and_inject_variable(self, model_dict, model_context):
         """

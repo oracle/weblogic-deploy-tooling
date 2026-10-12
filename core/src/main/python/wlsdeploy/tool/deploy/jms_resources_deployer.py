@@ -1,10 +1,11 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases import foreign_jndi_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CONNECTION_FACTORY
 from wlsdeploy.aliases.model_constants import CONNECTION_URL
@@ -211,7 +212,15 @@ class JmsResourcesDeployer(Deployer):
             self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(properties_location))
 
             property_nodes = remaining_name_nodes[property_name]
+            property_nodes = self._decrypt_jndi_property(property_name, property_nodes)
             self.set_attributes(properties_location, property_nodes)
+
+    def _decrypt_jndi_property(self, property_name, property_nodes):
+        if 'Value' in property_nodes and foreign_jndi_utils.is_encrypted_property(
+                property_name, self.model_context.get_effective_wls_version()):
+            property_nodes = property_nodes.copy()
+            property_nodes['Value'] = self.aliases.decrypt_password(property_nodes['Value'])
+        return property_nodes
 
     def _add_group_params(self, group_name_nodes, location):
         """
