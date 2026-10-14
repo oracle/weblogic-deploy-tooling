@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2026, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -112,20 +112,20 @@ class CommonResourcesDiscoverer(Discoverer):
                     _logger.info('WLSDPLY-06341', datasource, class_name=_class_name,
                                  method_name=_method_name)
                     result[datasource] = OrderedDict()
-                    location.add_name_token(name_token, datasource)
-                    self._populate_model_parameters(result[datasource], location)
+                    # Keep folders and child name tokens local to each datasource, including when cd fails.
+                    datasource_location = LocationContext(location)
+                    datasource_location.add_name_token(name_token, datasource)
+                    self._populate_model_parameters(result[datasource], datasource_location)
 
-                    location.append_location(model_second_folder)
-                    deployer_utils.set_single_folder_token(location, self._aliases)
-                    if self.wlst_cd(self._aliases.get_wlst_attributes_path(location), location):
+                    datasource_location.append_location(model_second_folder)
+                    deployer_utils.set_single_folder_token(datasource_location, self._aliases)
+                    if self.wlst_cd(self._aliases.get_wlst_attributes_path(datasource_location), datasource_location):
                         result[datasource][model_second_folder] = OrderedDict()
                         resource_result = result[datasource][model_second_folder]
-                        self._populate_model_parameters(resource_result, location)
-                        self._discover_subfolders(resource_result, location)
+                        self._populate_model_parameters(resource_result, datasource_location)
+                        self._discover_subfolders(resource_result, datasource_location)
                         self._collect_jdbc_driver_wallet(datasource,
                                   result[datasource][model_constants.JDBC_RESOURCE][model_constants.JDBC_DRIVER_PARAMS])
-                        location.remove_name_token(name_token)
-                        location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
