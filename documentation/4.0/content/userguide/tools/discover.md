@@ -175,15 +175,6 @@ configuration files and by discovering data from the default security providers.
 
 #### Discovering passwords
 
-For WebLogic Server 26.1 and later, discovery also treats Foreign JNDI Provider `Properties` entries and Foreign JMS
-Server `JNDIProperty` values whose keys end in `.encrypted` as passwords. Without `-discover_passwords`, nonempty
-marked values are replaced with `--FIX ME--`. With `-discover_passwords`, they are decrypted using the source domain's
-`SerializedSystemIni.dat` and follow the password encryption settings described below. The `.encrypted` suffix is
-retained in the model so WebLogic Server can encrypt the values when the model is deployed.
-When `-variable_file` or `-target` is used, marked values are tokenized using the same rules as other passwords;
-ordinary properties are left unchanged. Supply the corresponding WDT passphrase when deploying models containing
-WDT-encrypted marked values.
-
 Starting in 4.1.0, the Discover Domain Tool supports discovering passwords from the domain configuration files
 (for example, config.xml and any JDBCSystemResource XML file) by adding the `-discover_passwords` flag to the
 command-line.  This feature works in both offline and online modes provided that WDT has access to the domain home
@@ -192,6 +183,15 @@ WDT encryption to encrypt the passwords in the model using the WDT passphrase pa
 one of the following command-line arguments: `-passphrase_env`, `-passphrase_file`, or `passphrase_prompt`.
 This allows the user to discover the passwords from a domain and securely store them in the model using technology
 that is not tied to the source domain.
+
+For WebLogic Server 26.1 and later, discovery also treats Foreign JNDI Provider `Properties` entries and Foreign JMS
+Server `JNDIProperty` values whose keys end in `.encrypted` as passwords. Without `-discover_passwords`, nonempty
+marked values are replaced with `--FIX ME--`. With `-discover_passwords`, they are decrypted using the source domain's
+`SerializedSystemIni.dat` and follow the password encryption settings described above. The `.encrypted` suffix is
+retained in the model so WebLogic Server can encrypt the values when the model is deployed.
+When `-variable_file` or `-target` is used, marked values are tokenized using the same rules as other passwords;
+ordinary properties are left unchanged. Supply the corresponding WDT passphrase when deploying models containing
+WDT-encrypted marked values.
 
 {{% notice warning %}}WDT provides a configuration setting in `tool.properties` that allows the passwords to be stored
 in the model without being encrypted.  Oracle strongly recommends that you do not use this feature since not only will
