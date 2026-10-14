@@ -109,7 +109,30 @@ The directory under which a JMS Foreign Server binding file is stored.
 The root directory under which Node Manager keystore files are stored.
 
 #### `config/wlsdeploy/scripts`
-The root directory under which script files are stored. These can include JDBC create scripts and WLDF action scripts.
+The root directory under which script files are stored. These can include JDBC create scripts, WLDF action scripts,
+and service migration scripts.
+
+Discovery archives `PreScript` and `PostScript` files from `topology/MigratableTarget`,
+`topology/Server/JTAMigratableTarget`, and `topology/ServerTemplate/JTAMigratableTarget` in this directory.
+Relative source paths are resolved against `$DOMAIN_HOME/bin/service_migration`. Absolute paths and path tokens
+are also supported. With `-skip_archive`, the configured script references are retained.
+
+When creating or updating a domain, script archive references in these migration attributes are extracted to
+`$DOMAIN_HOME/bin/service_migration` and the attributes are set to the extracted filenames. On POSIX systems,
+the extracted scripts receive permissions `0750`. Script references outside the archive retain their existing values.
+
+To add a migration script manually, use `archiveHelper add script` and set the appropriate `PreScript` or
+`PostScript` attribute to the archive path returned by the command. For example:
+
+```yaml
+topology:
+    MigratableTarget:
+        MyMigratableTarget:
+            PreScript: config/wlsdeploy/scripts/pre.sh
+```
+
+This extracts `pre.sh` to `$DOMAIN_HOME/bin/service_migration/pre.sh` and sets `PreScript` to `pre.sh`.
+Other attributes referencing the same archive entry continue to use their normal extraction destinations.
 
 #### `config/wlsdeploy/servers/<server-name>`
 The root directory under which server keystore files are stored. These are organized by server name, such as

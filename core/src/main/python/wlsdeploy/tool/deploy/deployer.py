@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2026, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from array import array
@@ -29,6 +29,7 @@ from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
+from wlsdeploy.tool.util.topology_helper import is_migration_script
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
@@ -379,6 +380,8 @@ class Deployer(object):
                     source_path = self.path_helper.local_join(self.upload_temporary_dir, relative_path_in_archive)
                     target_path = self.path_helper.remote_join(self.model_context.get_domain_home(), extract_path)
                     self.upload_specific_file_to_remote_server(source_path, target_path)
+                if is_migration_script(location, key):
+                    result = extract_path.split('/')[-1]
             else:
                 path = self.aliases.get_model_folder_path(location)
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09209', key, path, value)
@@ -402,6 +405,7 @@ class Deployer(object):
                              class_name=self._class_name, method_name=_method_name)
 
         result = False
+        executable = is_migration_script(location, key)
 
         # setting this to make sure the file is extracted with relative path intact
         if is_ssh:
@@ -410,6 +414,8 @@ class Deployer(object):
             strip_leading_path = True
 
         full_path_into_domain = self.path_helper.local_join(self.model_context.get_domain_home(), value)
+        if executable:
+            full_path_into_domain = self.path_helper.local_join(self.model_context.get_domain_home(), extract_path)
 
         if self.archive_helper.contains_file(value):
             if self.wlst_mode == WlstModes.OFFLINE:
@@ -418,7 +424,7 @@ class Deployer(object):
                 else:
                     # In offline mode, just overwrite any existing file.
                     self.archive_helper.extract_file(value, location=extract_location,
-                                                     strip_leading_path=strip_leading_path)
+                                                     strip_leading_path=strip_leading_path, executable=executable)
                     result = True
             else:
                 if value.endswith('/'):
@@ -428,14 +434,14 @@ class Deployer(object):
                     if os.path.isfile(full_path_into_domain) and not self.model_context.is_ssh():
                         archive_hash = self.archive_helper.get_file_hash(value)
                         file_hash = deployer_utils.get_file_hash(full_path_into_domain)
-                        if archive_hash != file_hash:
+                        if archive_hash != file_hash or executable:
                             self.archive_helper.extract_file(value, location=extract_location,
-                                                             strip_leading_path=strip_leading_path)
+                                                             strip_leading_path=strip_leading_path, executable=executable)
                         result = True
                     else:
                         # The file does not exist so extract it from the archive.
                         self.archive_helper.extract_file(value, location=extract_location,
-                                                         strip_leading_path=strip_leading_path)
+                                                         strip_leading_path=strip_leading_path, executable=executable)
                         result = True
         elif self.archive_helper.contains_path(value):
             # contents should have been extracted elsewhere, such as for apps and shared libraries

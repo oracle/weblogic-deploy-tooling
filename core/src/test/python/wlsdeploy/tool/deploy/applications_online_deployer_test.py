@@ -1,5 +1,5 @@
 """
-Copyright (c) 2026, Oracle and/or its affiliates.
+Copyright (c) 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -468,7 +468,7 @@ class _RecordingArchive(object):
     def get_file_hash(self, path):
         return FileUtils.computeHash(self.source)
 
-    def extract_file(self, path, location=None, strip_leading_path=True):
+    def extract_file(self, path, location=None, strip_leading_path=True, executable=False):
         self.extracted.append(path)
 
 

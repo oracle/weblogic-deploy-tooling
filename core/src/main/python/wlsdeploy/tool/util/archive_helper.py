@@ -1,11 +1,12 @@
 """
-Copyright (c) 2017, 2026, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import sets
 
 from java.io import File
+from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.nio.file import CopyOption
@@ -197,11 +198,12 @@ class ArchiveList(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def extract_file(self, path, location=None, strip_leading_path=True):
+    def extract_file(self, path, location=None, strip_leading_path=True, executable=False):
         """
         Extract the specified file from the archive into the specified directory, or into Domain Home.
         :param path: the path into the archive
         :param location: the location to which to extract the file
+        :param executable: set executable permissions for a migration script (ignored on Windows)
         :return: path to the extracted file
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
@@ -218,7 +220,9 @@ class ArchiveList(object):
                 # to the location
                 extract_location = FileUtils.getCanonicalFile(File(location))
                 result = archive_file.extractFile(path, extract_location, strip_leading_path)
-        except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            if executable:
+                FileUtils.chmod(result, 0750)
+        except (IllegalArgumentException, WLSDeployArchiveIOException, IOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_files_text, e.getLocalizedMessage(), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

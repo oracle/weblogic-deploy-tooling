@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2026, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -246,7 +246,9 @@ PLAN_DIR = 'PlanDir'
 PLAN_PATH = 'PlanPath'
 POLICY = 'Policy'
 PLUGIN_DEPLOYMENT = 'PluginDeployment'
+POST_SCRIPT = 'PostScript'
 PREPEND = 'prepend'
+PRE_SCRIPT = 'PreScript'
 PROPERTIES = 'Properties'
 PRODUCTION_MODE_ENABLED = 'ProductionModeEnabled'
 PROTOCOL = 'Protocol'

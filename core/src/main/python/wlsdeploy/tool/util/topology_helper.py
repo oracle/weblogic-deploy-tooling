@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -14,12 +14,26 @@ from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CUSTOM_IDENTITY_KEYSTORE_FILE
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import JTA_MIGRATABLE_TARGET
+from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
+from wlsdeploy.aliases.model_constants import POST_SCRIPT
+from wlsdeploy.aliases.model_constants import PRE_SCRIPT
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import path_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+
+SERVICE_MIGRATION_DIRECTORY = 'bin/service_migration'
+
+
+def is_migration_script(location, attribute_name):
+    if location is None or attribute_name not in [PRE_SCRIPT, POST_SCRIPT]:
+        return False
+    folders = location.get_model_folders()
+    return folders == [MIGRATABLE_TARGET] or folders == [SERVER, JTA_MIGRATABLE_TARGET] or \
+        folders == [SERVER_TEMPLATE, JTA_MIGRATABLE_TARGET]
 
 
 class TopologyHelper(object):
@@ -193,6 +207,8 @@ class TopologyHelper(object):
         :param attribute_name: (optional) the attribute name (used for logging)
         :return:
         """
+        if is_migration_script(location, attribute_name) and WLSDeployArchive.isPathIntoArchive(archive_path):
+            return SERVICE_MIGRATION_DIRECTORY + '/' + archive_path.split('/')[-1]
         extract_path = WLSDeployArchive.getExtractPath(archive_path)
         if (extract_path != archive_path) and location:
             location_text = self.aliases.get_model_folder_path(location)

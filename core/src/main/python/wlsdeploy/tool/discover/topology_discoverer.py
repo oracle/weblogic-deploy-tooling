@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2026, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -26,6 +26,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
+from wlsdeploy.tool.util.topology_helper import SERVICE_MIGRATION_DIRECTORY
+from wlsdeploy.tool.util.topology_helper import is_migration_script
 from wlsdeploy.tool.util.variable_injector import VARIABLE_SEP
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
@@ -72,6 +74,8 @@ class TopologyDiscoverer(Discoverer):
                               self._add_jdbc_transaction_log_create_table_ddl_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+        self._add_att_handler(model_constants.PRE_SCRIPT, self._add_migration_script_to_archive)
+        self._add_att_handler(model_constants.POST_SCRIPT, self._add_migration_script_to_archive)
 
         self._add_att_handler(model_constants.ADMINISTRATION_PORT, self._handle_inherited_default)
         self._add_att_handler(model_constants.ADMINISTRATION_PORT_ENABLED, self._handle_inherited_default)
@@ -924,6 +928,39 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
+
+    def _add_migration_script_to_archive(self, model_name, model_value, location):
+        """Archive migration scripts, whose relative paths are based on bin/service_migration."""
+        _method_name = '_add_migration_script_to_archive'
+        if not is_migration_script(location, model_name) or string_utils.is_empty(model_value):
+            return model_value
+        if self._model_context.is_skip_archive():
+            return model_value
+
+        file_path = self._model_context.replace_token_string(model_value)
+        if self.path_helper.is_relative_path(file_path):
+            migration_directory = self.path_helper.join(self._model_context.get_domain_home(),
+                                                       SERVICE_MIGRATION_DIRECTORY)
+            file_path = self.path_helper.get_canonical_path(file_path, migration_directory)
+        if self._model_context.is_remote():
+            new_name = WLSDeployArchive.getScriptArchivePath(file_path)
+            self.add_to_remote_map(file_path, new_name, WLSDeployArchive.ArchiveEntryType.SCRIPT.name())
+            return new_name
+
+        try:
+            if self._model_context.is_ssh():
+                file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
+                                                                       'migrationScript')
+            return self._model_context.get_archive_file().addScript(file_path)
+        except IllegalArgumentException, iae:
+            _logger.warning('WLSDPLY-06679', model_name, model_value,
+                            self._aliases.get_model_folder_path(location), iae.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name, error=iae)
+            return model_value
+        except WLSDeployArchiveIOException, wioe:
+            ex = exception_helper.create_discover_exception('WLSDPLY-06680', model_name, model_value,
+                self._aliases.get_model_folder_path(location), wioe.getLocalizedMessage(), error=wioe)
+            raise ex
 
     def _add_keystore_file_to_archive(self, model_name, model_value, location):
         """

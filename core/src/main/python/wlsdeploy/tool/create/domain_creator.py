@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -250,13 +250,7 @@ class DomainCreator(Creator):
             self.__create_base_domain(self._domain_home)
             self.__extend_domain(self._domain_home)
 
-        if len(self.files_to_extract_from_archive) > 0:
-            for file_to_extract in self.files_to_extract_from_archive:
-                # extract path may differ from archive path, such as config/wlsdeploy/*
-                destination_path = self.topology_helper.get_archive_extract_path(file_to_extract)
-                destination_directory = self.topology_helper.get_archive_extract_directory(destination_path,
-                                                                                           self._domain_home)
-                self.archive_helper.extract_file(file_to_extract, destination_directory)
+        self._extract_deferred_archive_files(self._domain_home)
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()

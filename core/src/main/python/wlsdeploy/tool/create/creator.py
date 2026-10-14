@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates. All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -14,6 +14,7 @@ from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
+from wlsdeploy.tool.util.topology_helper import is_migration_script
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
@@ -311,7 +312,11 @@ class Creator(object):
         if (model_name in uses_path_tokens_names) and (model_value is not None):
             # extract path(s) may be different from original model value
             self._extract_archive_files(location, model_name, model_value)
+            migration_script = is_migration_script(location, model_name) and \
+                WLSDeployArchive.isPathIntoArchive(model_value)
             model_value = self.topology_helper.get_archive_extract_path(model_value, location, model_name)
+            if migration_script:
+                model_value = model_value.split('/')[-1]
 
         wlst_name, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
@@ -362,7 +367,9 @@ class Creator(object):
                         # so add them to the list so that they can be extracted after
                         # domain creation completes.
                         #
-                        self.files_to_extract_from_archive.append(model_path)
+                        extract_path = self.topology_helper.get_archive_extract_path(model_path, location, model_name)
+                        executable = is_migration_script(location, model_name)
+                        self.files_to_extract_from_archive.append((model_path, extract_path, executable))
                     else:
                         path = self.aliases.get_model_folder_path(location)
                         archive_file_name = self.model_context.get_archive_file_name()
@@ -375,6 +382,12 @@ class Creator(object):
                     ex = exception_helper.create_create_exception('WLSDPLY-12122', model_name, path, model_path)
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
+
+    def _extract_deferred_archive_files(self, domain_home):
+        """Extract queued files after domain creation, preserving each attribute's destination."""
+        for archive_path, extract_path, executable in self.files_to_extract_from_archive:
+            directory = self.topology_helper.get_archive_extract_directory(extract_path, domain_home)
+            self.archive_helper.extract_file(archive_path, directory, executable=executable)
 
     def _is_type_valid(self, location, type_name):
         """
