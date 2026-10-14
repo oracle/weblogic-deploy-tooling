@@ -1,9 +1,13 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
+import re
+
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.encrypt import EncryptionUtils
+from wlsdeploy.aliases import foreign_jndi_utils
 from wlsdeploy.aliases.alias_constants import CREDENTIAL
 from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
@@ -22,6 +26,7 @@ from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.variable_injector import REGEXP
 from wlsdeploy.tool.util.variable_injector import REGEXP_PATTERN
 from wlsdeploy.tool.util.variable_injector import REGEXP_SUFFIX
@@ -94,6 +99,7 @@ class CredentialInjector(VariableInjector):
         """
         VariableInjector.__init__(self, program_name, model_context, aliases)
         self._no_filter_keys_cache = []
+        self._foreign_property_secret_names = []
         self._no_filter_keys_cache.append(self.NO_FILTER_KEYS)
 
     def check_and_tokenize(self, model_dict, attribute, location):
@@ -113,7 +119,7 @@ class CredentialInjector(VariableInjector):
             injector_commands.update({VARIABLE_VALUE: model_value})
             self.custom_injection(model_dict, attribute, location, injector_commands)
 
-        elif attribute_type == PASSWORD:
+        elif attribute_type == PASSWORD or self._is_foreign_jms_password(location, attribute):
             # if results.json file is used, include passwords mappings in the cache.
             # these will be filtered and included in the result only as allowed.
             uses_results_file = self._model_context.get_target_configuration().generate_results_file()
@@ -125,6 +131,13 @@ class CredentialInjector(VariableInjector):
                 # STANDARD_PASSWORD_INJECTOR provides an empty value for the mapping
                 injector_commands = STANDARD_PASSWORD_INJECTOR
             self.custom_injection(model_dict, attribute, location, injector_commands)
+
+            if self._is_foreign_jms_password(location, attribute):
+                self._decrypt_foreign_property_secret(location, attribute)
+
+        elif foreign_jndi_utils.is_provider_properties(
+                location, attribute, self._model_context.get_effective_wls_version()):
+            self._tokenize_foreign_jndi_properties(model_dict, attribute, location)
 
         elif folder_path.endswith(self.JDBC_PROPERTIES_PATH):
             token = self._aliases.get_name_token(location)
@@ -173,6 +186,46 @@ class CredentialInjector(VariableInjector):
                     assigns.append('%s=%s' % (key, properties[key]))
                 model_dict[attribute] = split_value.join(assigns)
 
+    def _is_foreign_jms_password(self, location, attribute):
+        version = self._model_context.get_effective_wls_version()
+        if foreign_jndi_utils.is_jms_property_value(location, attribute, version):
+            property_name = location.get_name_for_token(self._aliases.get_name_token(location))
+            return foreign_jndi_utils.is_encrypted_property(property_name, version)
+        return False
+
+    def _tokenize_foreign_jndi_properties(self, model_dict, attribute, location):
+        patterns = []
+        properties = model_dict[attribute]
+        for property_name in properties:
+            if foreign_jndi_utils.is_encrypted_property(property_name, self._model_context.get_effective_wls_version()) \
+                    and properties[property_name]:
+                patterns.append({REGEXP_PATTERN: '^' + re.escape(property_name) + '$', REGEXP_SUFFIX: property_name})
+        if patterns:
+            commands = {REGEXP: patterns}
+            uses_results_file = self._model_context.get_target_configuration().generate_results_file()
+            if not self._model_context.is_discover_passwords() and not uses_results_file:
+                commands[VARIABLE_VALUE] = ''
+            self.custom_injection(model_dict, attribute, location, commands)
+            for property_name in properties:
+                if foreign_jndi_utils.is_encrypted_property(property_name, self._model_context.get_effective_wls_version()):
+                    self._decrypt_foreign_property_secret(location, attribute, suffix=property_name)
+
+    def _decrypt_foreign_property_secret(self, location, attribute, suffix=None):
+        # Resolve credential secret values before output masking; variable files retain WDT encryption.
+        if self._model_context.get_target_configuration().uses_credential_secrets():
+            variable_name = self.get_variable_name(location, attribute, suffix=suffix)
+            if variable_name not in self._foreign_property_secret_names:
+                self._foreign_property_secret_names.append(variable_name)
+            self.decrypt_foreign_property_secrets()
+
+    def decrypt_foreign_property_secrets(self):
+        # prepareModel resolves variable references after injection; decrypt those resolved secrets too.
+        cache = self.get_variable_cache()
+        for variable_name in self._foreign_property_secret_names:
+            if variable_name in cache and EncryptionUtils.isEncryptedString(cache[variable_name]):
+                cache[variable_name] = encryption_utils.decrypt_one_password(
+                    self._model_context.get_encryption_passphrase(), cache[variable_name])
+
     def injection_out_of_model(self, token, username=''):
         """
         This is for tokenizing variables that are not in the model but need to be in the variable file
@@ -208,8 +261,14 @@ class CredentialInjector(VariableInjector):
 
         if target_config.uses_credential_secrets():
             # use the secret token name as variable name in the cache, such as jdbc-generic1:password
+            secret_key = None
+            version = self._model_context.get_effective_wls_version()
+            if self._is_foreign_jms_password(attribute_location, attribute) or \
+                    (foreign_jndi_utils.is_provider_properties(attribute_location, attribute, version) and
+                     foreign_jndi_utils.is_encrypted_property(suffix, version)):
+                secret_key = SECRET_PASSWORD_KEY
             return target_configuration_helper.get_secret_path(model_location, attribute_location,
-                                                               attribute, self._aliases, suffix)
+                                                               attribute, self._aliases, suffix, secret_key)
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 

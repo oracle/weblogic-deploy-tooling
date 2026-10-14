@@ -365,7 +365,7 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     return domain_uid + '-' + secret_name
 
 
-def get_secret_path(model_location, attribute_location, attribute, aliases, suffix=None):
+def get_secret_path(model_location, attribute_location, attribute, aliases, suffix=None, secret_key=None):
     """
     Get the full secret path <secretName>:<secretKey>
     Example: mail-mymailsession-properties-smtp:password
@@ -374,23 +374,25 @@ def get_secret_path(model_location, attribute_location, attribute, aliases, suff
     :param attribute: the attribute to be evaluated, or None
     :param aliases: for information about the location and attribute
     :param suffix: optional suffix for the name, such as "pop3.user"
+    :param secret_key: optional explicit key for dynamically classified credentials
     :return: the secret path
     """
     short_name = variable_injector_functions.get_short_name(model_location, attribute, aliases)
     secret_name = format_secret_name(model_location, attribute_location, attribute, aliases, suffix)
 
-    if JDBC_USER_PATTERN.search(short_name):
-        # JDBC user property is still a special case
-        secret_key = SECRET_USERNAME_KEY
-    elif suffix:
-        # derive the secret key from the suffix, specific to MailSession
-        secret_key = SECRET_USERNAME_KEY
-        if suffix.endswith(".password"):
-            secret_key = SECRET_PASSWORD_KEY
-    else:
-        # derive the secret key from the alias
-        secret_key = aliases.get_secret_key(attribute_location, attribute)
-        secret_key = secret_key or 'unknown'
+    if secret_key is None:
+        if JDBC_USER_PATTERN.search(short_name):
+            # JDBC user property is still a special case
+            secret_key = SECRET_USERNAME_KEY
+        elif suffix:
+            # derive the secret key from the suffix, specific to MailSession
+            secret_key = SECRET_USERNAME_KEY
+            if suffix.endswith(".password"):
+                secret_key = SECRET_PASSWORD_KEY
+        else:
+            # derive the secret key from the alias
+            secret_key = aliases.get_secret_key(attribute_location, attribute)
+            secret_key = secret_key or 'unknown'
 
     return '%s:%s' % (secret_name, secret_key)
 

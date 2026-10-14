@@ -37,6 +37,11 @@ wko-domain.yaml
 You should customize the `wko_variable.properties`, `create_k8s_secrets.sh`, and `wko-domain.yaml` files to provide
 environment-specific values that are appropriate for the target environment.
 
+For WebLogic Server 26.1 and later, Foreign JNDI Provider `Properties` entries and Foreign JMS Server
+`JNDIProperty` values whose keys end in `.encrypted` are treated as passwords. For targets that use credential
+secrets, these values use the `password` secret key. Values referenced through `@@PROP` tokens are resolved from
+the input variable file before generating secret output.
+
 For more information about additional target environments and options, see [Target environments]({{% relref "/userguide/target_env.md" %}}).
 
 ### Parameter table for `prepareModel`
