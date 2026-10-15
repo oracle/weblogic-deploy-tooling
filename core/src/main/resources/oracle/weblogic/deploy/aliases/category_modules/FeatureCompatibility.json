@@ -13,6 +13,9 @@
     ],
     "folders": {},
     "attributes": {
+        "CrossDomainT3SConnectionTrustValidationEnabled": [
+            { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "CrossDomainT3SConnectionTrustValidationEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "restart_required": "true" }
+        ],
         "IiopStrictRemoteBusinessInterfaceValidationEnabled": [
             { "version": "[26.1,)", "wlst_mode": "both",   "wlst_name": "${Iiop:IIOP}StrictRemoteBusinessInterfaceValidationEnabled",                    "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
         ],
