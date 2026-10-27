@@ -20,6 +20,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import KEY
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import PROPERTIES
 from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
@@ -110,6 +111,12 @@ class CredentialInjector(VariableInjector):
         :param attribute: the name of the attribute
         :param location: the location of the attribute
         """
+        if foreign_jndi_utils.is_jms_property_value(
+                location, attribute, self._model_context.get_effective_wls_version()) and KEY in model_dict:
+            # An explicit Key can differ from the model instance name.
+            location = LocationContext(location)
+            location.add_name_token(self._aliases.get_name_token(location), model_dict[KEY])
+
         attribute_type = self._aliases.get_model_attribute_type(location, attribute)
         folder_path = '.'.join(location.get_model_folders())
         model_value = model_dict[attribute]

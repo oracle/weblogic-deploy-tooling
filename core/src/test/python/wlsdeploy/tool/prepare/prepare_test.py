@@ -164,15 +164,18 @@ class PrepareTestCase(BaseTestCase):
         provider = model[RESOURCES]['ForeignJNDIProvider']['provider'][PROPERTIES]
         jms = model[RESOURCES]['JMSSystemResource']['module']['JmsResource']['ForeignServer']['foreign']['JNDIProperty']
         for token in [provider['vendor.one.encrypted'], provider['vendor.two.encrypted'],
-                      jms['vendor.jms.encrypted']['Value']]:
+                      jms['vendor.jms.encrypted']['Value'], jms['NO_NAME_0']['Value']]:
             self.assertEqual(True, token.startswith('@@SECRET:'))
             self.assertEqual(True, token.endswith(':password@@'))
         self.assertEqual('@@PROP:ordinary@@', provider['vendor.plain'])
         self.assertEqual('@@PROP:ordinary@@', jms['vendor.plain']['Value'])
+        self.assertEqual('@@PROP:ordinary@@', jms['ordinary.encrypted']['Value'])
+        self.assertEqual('vendor.explicit.encrypted', jms['NO_NAME_0']['Key'])
         secrets = FileToPython(os.path.join(output_dir, 'results.json'), use_ordering=True).parse()['secrets']
         for token, value in [(provider['vendor.one.encrypted'], 'provider-marker'),
                              (provider['vendor.two.encrypted'], 'second-marker'),
-                             (jms['vendor.jms.encrypted']['Value'], 'jms-marker')]:
+                             (jms['vendor.jms.encrypted']['Value'], 'jms-marker'),
+                             (jms['NO_NAME_0']['Value'], 'jms-marker')]:
             secret_name = token[len('@@SECRET:@@ENV:DOMAIN_UID@@-'):-len(':password@@')]
             self._match(value, preparer.credential_injector.get_variable_cache(), secret_name + ':password')
             self._match(None, secrets, secret_name, 'keys', 'password')

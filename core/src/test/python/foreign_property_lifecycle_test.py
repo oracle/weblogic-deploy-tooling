@@ -115,6 +115,42 @@ class ForeignPropertyLifecycleTest(BaseTestCase):
         self.assertEqual(False, first['Value'] == second['Value'])
         self.assertEqual(['first-marker', 'second-marker'], self._cache_values(injector))
 
+    def test_jms_explicit_key_controls_tokenization_and_secret_decryption(self):
+        self.context._discover_passwords = True
+        self.context._target_configuration = TargetConfiguration({'credentials_method': 'secrets'})
+        injector = CredentialInjector('test', self.context, self.aliases)
+        location = self._jms('NO_NAME_0')
+        nodes = {'Key': 'vendor.secret.encrypted', 'Value': self.ciphertext}
+        injector.check_and_tokenize(nodes, 'Value', location)
+        self.assertEqual(True, nodes['Value'].startswith('@@SECRET:'))
+        self.assertEqual(True, nodes['Value'].endswith(':password@@'))
+        self.assertEqual(['original-marker'], self._cache_values(injector))
+        self.assertEqual('NO_NAME_0', location.get_name_for_token(self.aliases.get_name_token(location)))
+
+        same_key = {'Key': 'vendor.secret.encrypted', 'Value': self.ciphertext}
+        injector.check_and_tokenize(same_key, 'Value', self._jms('different-instance'))
+        self.assertEqual(nodes['Value'], same_key['Value'])
+
+    def test_jms_plain_key_overrides_encrypted_instance_name(self):
+        injector = CredentialInjector('test', self.context, self.aliases)
+        nodes = {'Key': 'vendor.plain', 'Value': 'ordinary-marker'}
+        injector.check_and_tokenize(nodes, 'Value', self._jms('vendor.secret.encrypted'))
+        self.assertEqual('ordinary-marker', nodes['Value'])
+        self.assertEqual(0, len(injector.get_variable_cache()))
+
+    def test_jms_deployment_uses_explicit_key(self):
+        deployer = JmsResourcesDeployer.__new__(JmsResourcesDeployer)
+        deployer.aliases = self.aliases
+        deployer.model_context = self.context
+        nodes = {'Key': 'vendor.secret.encrypted', 'Value': self.ciphertext}
+        self.assertEqual('original-marker', deployer._decrypt_jndi_property('NO_NAME_0', nodes)['Value'])
+        self.assertEqual(self.ciphertext, nodes['Value'])
+        nodes = {'Key': 'vendor.plain', 'Value': self.ciphertext}
+        self.assertEqual(self.ciphertext, deployer._decrypt_jndi_property('vendor.secret.encrypted', nodes)['Value'])
+        self.context.version = '14.1.2.0.0'
+        nodes = {'Key': 'vendor.secret.encrypted', 'Value': self.ciphertext}
+        self.assertEqual(self.ciphertext, deployer._decrypt_jndi_property('NO_NAME_0', nodes)['Value'])
+
     def test_jms_ordinary_and_older_version_values_are_not_tokenized(self):
         injector = CredentialInjector('test', self.context, self.aliases)
         nodes = {'Value': 'ordinary-marker'}

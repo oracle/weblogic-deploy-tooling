@@ -40,7 +40,8 @@ environment-specific values that are appropriate for the target environment.
 For WebLogic Server 26.1 and later, Foreign JNDI Provider `Properties` entries and Foreign JMS Server
 `JNDIProperty` values whose keys end in `.encrypted` are treated as passwords. For targets that use credential
 secrets, these values use the `password` secret key. Values referenced through `@@PROP` tokens are resolved from
-the input variable file before generating secret output.
+the input variable file before generating secret output. For `JNDIProperty`, an explicit `Key` determines whether
+the value is a password; when `Key` is omitted, the property instance name is used.
 
 For more information about additional target environments and options, see [Target environments]({{% relref "/userguide/target_env.md" %}}).
 
