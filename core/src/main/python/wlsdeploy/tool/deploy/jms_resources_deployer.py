@@ -216,6 +216,7 @@ class JmsResourcesDeployer(Deployer):
             self.set_attributes(properties_location, property_nodes)
 
     def _decrypt_jndi_property(self, property_name, property_nodes):
+        property_name = property_nodes.get(KEY, property_name)
         if 'Value' in property_nodes and foreign_jndi_utils.is_encrypted_property(
                 property_name, self.model_context.get_effective_wls_version()):
             property_nodes = property_nodes.copy()

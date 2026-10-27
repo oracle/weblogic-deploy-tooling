@@ -17,6 +17,12 @@ resources:
                                 Value: '@@PROP:jms.secret@@'
                             vendor.plain:
                                 Value: '@@PROP:ordinary@@'
+                            NO_NAME_0:
+                                Key: vendor.explicit.encrypted
+                                Value: '@@PROP:jms.secret@@'
+                            ordinary.encrypted:
+                                Key: vendor.ordinary
+                                Value: '@@PROP:ordinary@@'
     MailSession:
         mail:
             Properties:
