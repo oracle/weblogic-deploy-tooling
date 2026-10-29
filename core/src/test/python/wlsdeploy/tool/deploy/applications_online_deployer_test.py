@@ -265,6 +265,36 @@ class ApplicationsOnlineDeployerTest(BaseTestCase):
         self.assertEqual(['cluster1'], library['target'])
         self.assert_('sample-app' in library['referencingApp'])
 
+    def test_library_inventory_preserves_valid_references_alongside_nulls(self):
+        deployer = self._new_deployer()
+        deployer.wlst_helper.libraries['shared#1.0@1.0'] = {SOURCE_PATH: self.source}
+        deployer.wlst_helper.referenced = True
+        deployer.wlst_helper.runtime_references = [
+            None, _RuntimeReference('ApplicationRuntime', 'sample-app'), None,
+            _RuntimeReference('WebAppComponentRuntime', 'versioned-app#v1')]
+        references = deployer._OnlineApplicationsDeployer__get_existing_library_references()
+        app_names = references['shared#1.0@1.0']['referencingApp'].keys()
+        app_names.sort()
+        self.assertEqual(['sample-app', 'versioned-app#v1'], app_names)
+
+    def test_library_inventory_retains_library_without_available_reference_runtimes(self):
+        for runtime_references in [[None, None], []]:
+            deployer = self._new_deployer()
+            deployer.wlst_helper.libraries['shared#1.0@1.0'] = {SOURCE_PATH: self.source}
+            deployer.wlst_helper.referenced = True
+            deployer.wlst_helper.runtime_references = runtime_references
+            references = deployer._OnlineApplicationsDeployer__get_existing_library_references()
+            library = references['shared#1.0@1.0']
+            self.assertEqual(FileUtils.computeHash(self.source), library['hash'])
+            self.assertEqual(['cluster1'], library['target'])
+            self.assert_('referencingApp' not in library)
+
+    def test_library_inventory_propagates_runtime_read_failures(self):
+        deployer = self._new_deployer()
+        deployer.wlst_helper.libraries['shared#1.0@1.0'] = {SOURCE_PATH: self.source}
+        deployer.wlst_helper.runtime_error = IOException('runtime read failed')
+        self.assertRaises(IOException, deployer._OnlineApplicationsDeployer__get_existing_library_references)
+
     def test_hash_results_for_file_directory_and_absent_plan(self):
         deployer = self._new_deployer()
         hashes = deployer._OnlineApplicationsDeployer__get_app_and_plan_hash(
@@ -472,6 +502,26 @@ class _RecordingArchive(object):
         self.extracted.append(path)
 
 
+class _RuntimeReference(object):
+
+    def __init__(self, runtime_type, app_name):
+        self.runtime_type = runtime_type
+        self.app_name = app_name
+
+    def getType(self):
+        return self.runtime_type
+
+    def getApplicationName(self):
+        if self.runtime_type != 'ApplicationRuntime':
+            raise AssertionError('ApplicationName is not a web component attribute')
+        return self.app_name
+
+    def getApplicationIdentifier(self):
+        if self.runtime_type != 'WebAppComponentRuntime':
+            raise AssertionError('ApplicationIdentifier is not an application runtime attribute')
+        return self.app_name
+
+
 class _Inventory(object):
     """Read-only WLST responses; unexpected reads fail the test."""
 
@@ -479,6 +529,8 @@ class _Inventory(object):
         self.applications = {}
         self.libraries = {}
         self.referenced = False
+        self.runtime_references = [_RuntimeReference('ApplicationRuntime', 'sample-app')]
+        self.runtime_error = None
         self.path = None
 
     def server_config(self):
@@ -488,7 +540,21 @@ class _Inventory(object):
         pass
 
     def cd(self, path):
+        if '/ReferencingRuntimes' in path:
+            raise AssertionError('Library inventory must not navigate into ReferencingRuntimes')
         self.path = path
+
+    def get_mbean(self):
+        if not self.path.startswith('/ServerRuntimes/AdminServer/LibraryRuntimes/'):
+            raise AssertionError('Unexpected MBean: ' + self.path)
+        return self
+
+    def getReferencingRuntimes(self):
+        if self.runtime_error is not None:
+            raise self.runtime_error
+        if self.referenced:
+            return self.runtime_references
+        return []
 
     def get(self, path):
         if path == '/AppRuntimeStateRuntime/AppRuntimeStateRuntime/ApplicationIds':
@@ -502,15 +568,9 @@ class _Inventory(object):
             return ['AdminServer']
         if path == '/ServerRuntimes/AdminServer/LibraryRuntimes/':
             return self.libraries.keys()
-        if path.endswith('/ReferencingRuntimes/'):
-            return ['sample-app']
         raise AssertionError('Unexpected list: ' + path)
 
     def lsa(self, name=None):
-        if self.path.endswith('/ReferencingRuntimes/') and name == 'sample-app':
-            return {'Type': 'ApplicationRuntime', 'ApplicationName': name}
-        if self.path.startswith('/ServerRuntimes/AdminServer/LibraryRuntimes/'):
-            return {'Referenced': self.referenced}
         if self.path.startswith('/Libraries/'):
             return self.libraries[self.path[len('/Libraries/'):]]
         if self.path.startswith('/AppDeployments/'):
