@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "js-toml": "^1.0.0",
-    "puppeteer": "^24.10.2"
+    "puppeteer": "^25.16.0"
   },
   "optionalDependencies": {
     "canvas": "^2.11.2"
