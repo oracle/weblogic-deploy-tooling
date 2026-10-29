@@ -323,7 +323,19 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         self.wlst_helper.domain_runtime()
         self.wlst_helper.cd(library_runtime_path + lib)
-        runtime_attributes = self.wlst_helper.lsa()
+        library_runtime = self.wlst_helper.get_mbean()
+        referencing_apps = []
+        # A prepared web application can reference the library before its component
+        # runtime exists. Read the proxies directly: WLST cannot navigate out of a
+        # ReferencingRuntimes folder containing one of these null entries.
+        for app_ref in library_runtime.getReferencingRuntimes():
+            if app_ref is not None:
+                # TODO(rpatrick) - what if it is partitioned?
+                app_type = app_ref.getType()
+                if app_type == 'ApplicationRuntime':
+                    referencing_apps.append(app_ref.getApplicationName())
+                elif app_type == 'WebAppComponentRuntime':
+                    referencing_apps.append(app_ref.getApplicationIdentifier())
 
         lib_location = LocationContext(location).add_name_token(token_name, lib)
         wlst_attributes_path = self.aliases.get_wlst_attributes_path(lib_location)
@@ -343,27 +355,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         else:
             lib_hash = self.__get_deployment_hash(absolute_source_path, LIBRARY, lib, SOURCE_PATH)
 
-        if string_utils.to_boolean(runtime_attributes['Referenced']) is True:
-            referenced_path = library_runtime_path + lib + '/ReferencingRuntimes/'
-
-            self.wlst_helper.domain_runtime()
-            referenced_by = self.wlst_helper.get_existing_object_list(referenced_path)
-            self.wlst_helper.cd(referenced_path)
-
-            for app_ref in referenced_by:
-                # TODO(rpatrick) - what if it is partitioned?
-                ref_attrs = self.wlst_helper.lsa(app_ref)
-                app_type = ref_attrs['Type']
-                app_id = None
-                if app_type == 'ApplicationRuntime' and 'ApplicationName' in ref_attrs:
-                    app_id = dictionary_utils.get_element(ref_attrs, 'ApplicationName')
-                elif app_type == 'WebAppComponentRuntime' and 'ApplicationIdentifier' in ref_attrs:
-                    app_id = ref_attrs['ApplicationIdentifier']
-
-                _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets,
-                                       deploy_order=deployment_order, app_name=app_id)
-        else:
-            _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets)
+        # Retain the library even if every reference lacks a runtime. Missing
+        # runtime objects do not imply that the library itself is absent.
+        _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets)
+        for app_id in referencing_apps:
+            _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets,
+                                   deploy_order=deployment_order, app_name=app_id)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
