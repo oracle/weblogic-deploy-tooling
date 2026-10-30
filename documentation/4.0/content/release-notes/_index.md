@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 52
+weight = 51
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.4.6
+### Changes in Release 4.4.7
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,15 +17,18 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1883 - Added support for new top-level `FeatureCompatibility` folder.
-- #1899 - Added support for July 2026 PSUs.
-- #1905 - Added support for top-level `BatchConfig` folder.
-- #1908 - Added support for August 2026 CSPUs.
+- #1919 - Added support for September CSPUs.
+- #1921 - Preserved order in the variables file on updates.
+- #1923 - Added support for WLS 26.1 Foreign JNDI properties encryption.
+- #1925 - Added support for October PSUs.
+- #1926 - Added support for WLS 26.1 Foreign JMS properties encryption.
+- #1928 - Upgraded to JLine 4.3.1 to eliminate CVE.
 
 #### Bug Fixes
-- #1881 - Fixed encoding issues when writing variables file.
-- #1890 - Fixed an issue with JMS `ForeignServer` `ConnectionURL` attribute so that it supports both files and URLs.
-- #1893 - Fixed archive file handling to support large archive file copies.
+- #1881 - Fixed Java properties file encoding issues when writing out the variables file.
+- #1910 - Fixed issue with the alias type for JNDI allow lists to support lists.
+- #1924 - Fixed an issue that could cause duplicate `JdbcResource` folders causing discovery to fail.
+- #1927 - Fixed an issue with handling null shared library runtime references during online deployment (GitHub #1750).
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
