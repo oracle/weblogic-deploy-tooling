@@ -51,6 +51,17 @@ class VariablesTestCase(unittest.TestCase):
         self.assertEqual(variable_map['selected'], 'override')
         self.assertEqual(variable_map['decorated'], 'pre-override-post')
 
+    def testReadEscapedVariableReferences(self):
+        variable_map = variables.load_variables(self._resources_dir + '/variable-references-escaped.properties')
+        self.assertEqual(variable_map['literal'], '${missing}')
+        self.assertEqual(variable_map['shell'], '-Djava.library.path=${LD_LIBRARY_PATH:=}:/opt/lib')
+        self.assertEqual(variable_map['mixed'], '${foo}/abc/${foo}/abc')
+        self.assertEqual(variable_map['dollars'], '$ $abc $${foo} $$ $5 $')
+        self.assertEqual(variable_map['self'], '${self}')
+        self.assertEqual(variable_map['indirect'], 'pre-${missing}-${self}-post')
+        self.assertEqual(variable_map['ordered'], '${bar}/abc')
+        self.assertEqual(variable_map['unusual-name'], 'literal-name')
+
     def testReadVariablesReferenceMissing(self):
         self._assert_load_variables_failure(self._variable_references_missing_file, ['owner', 'missing'])
 

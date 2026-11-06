@@ -31,7 +31,8 @@ _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("(@@FILE:(@@[\w]+@@[\w.\\\/:-]+)@@)")
-_variable_reference_pattern = re.compile("\\$\\{([^{}]+)\\}")
+# Match dollar escapes before references so escaped expressions remain literal.
+_variable_reference_pattern = re.compile("\\$\\$|\\$\\{([^{}]+)\\}")
 
 # these match a string containing ONLY a token
 _property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
@@ -78,7 +79,7 @@ def load_variables(file_path, allow_multiple_files=False):
 
 def _resolve_variable_references(variable_map):
     """
-    Resolve ${name} references in the loaded variable values.
+    Resolve ${name} references and $$ dollar escapes in the loaded variable values.
     :param variable_map: the merged variable map
     :raises VariableException: if a variable reference is missing or cyclic
     """
@@ -112,26 +113,40 @@ def _resolve_variable_reference(variable_name, variable_map, resolved_map, resol
         raise exception_helper.create_variable_exception('WLSDPLY-01762', cycle_text)
 
     value = variable_map[variable_name]
-    if not isinstance(value, basestring) or '${' not in value:
+    if not isinstance(value, basestring) or '$' not in value:
         resolved_map[variable_name] = value
         return value
 
     resolving_names.append(variable_name)
     try:
-        result = value
-        matches = _variable_reference_pattern.findall(value)
-        for referenced_name in matches:
+        def replace_reference(match):
+            if match.group(0) == '$$':
+                return '$'
+            referenced_name = match.group(1)
             if referenced_name not in variable_map:
                 raise exception_helper.create_variable_exception(
                     'WLSDPLY-01761', variable_name, referenced_name)
-            referenced_value = _resolve_variable_reference(referenced_name, variable_map, resolved_map,
-                                                           resolving_names)
-            result = result.replace('${%s}' % referenced_name, referenced_value)
+            return _resolve_variable_reference(referenced_name, variable_map, resolved_map, resolving_names)
+
+        # Only scan the original value. Re-scanning replacements would expand escaped literals
+        # carried through references to other properties.
+        result = _variable_reference_pattern.sub(replace_reference, value)
     finally:
         resolving_names.pop()
 
     resolved_map[variable_name] = result
     return result
+
+
+def escape_variable_value(value):
+    """
+    Escape a literal value before writing it to a generated variables file.
+    :param value: the value extracted from a model or domain
+    :return: the value with literal dollar signs escaped, or the unchanged non-string value
+    """
+    if isinstance(value, basestring):
+        return value.replace('$', '$$')
+    return value
 
 
 def write_variables(program_name, variable_map, file_path, append=False):

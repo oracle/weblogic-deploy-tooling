@@ -13,6 +13,7 @@ description: "The section that discusses the high-level concepts of the WDT mode
 - [Simple example](#simple-example)
 - [Model names](#model-names)
 - [Model tokens](#model-tokens)
+- [References and literal expressions in variable files](#references-and-literal-expressions-in-variable-files)
 - [Model semantics](#model-semantics)
 - [Declaring named MBeans to delete](#declaring-named-mbeans-to-delete)
 - [Using multiple models](#using-multiple-models)
@@ -180,6 +181,8 @@ For example, if the application being deployed immediately following provisionin
 arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and
 populate the variable file with the provisioned server names dynamically between provisioning and application
 deployment.
+See [References and literal expressions in variable files](#references-and-literal-expressions-in-variable-files)
+for references between properties and dollar escaping within their values.
 
 **File tokens** are declared with the syntax `@@FILE:<filename>@@`. This type of token is similar to a variable token,
 but it references a single value that is read from the specified file. For example, the model may reference a password
@@ -248,6 +251,56 @@ directory location.  The supported tokens are:
 - `@@DOMAIN_HOME@@` - The location of the domain home directory on which the tool is working.
 - `@@PWD@@`         - The current working directory from which the tool was invoked.
 - `@@TMP@@`         - The location of the temporary directory, as controlled by the `java.io.tmpdir` system property.
+
+### References and literal expressions in variable files
+
+Starting with WDT 4.4.5, `${name}` in a variable properties file refers to another property in the supplied variable
+file or files.
+It does **not** refer to an operating system environment variable. To use an environment variable, use the
+`@@ENV:<name>@@` token instead. The model itself uses `@@PROP:<name>@@` to read a property value.
+
+```properties
+base=/opt/app
+library=${base}/lib
+home=@@ENV:HOME@@
+```
+
+Here, `library` resolves to `/opt/app/lib`. The `home` value contains an environment token, which is resolved
+when substituted into the model. A referenced property can be defined before or after the reference. When multiple
+variable files are supplied, WDT merges them before resolving references; values in later files override the same
+keys in earlier files. References can themselves contain references. A missing referenced property or a reference
+cycle causes an error when the variable files are loaded.
+
+To preserve a literal dollar sign in a property value, write `$$`. WDT processes dollar escapes and property
+references from left to right, without processing the resulting text again. For example, with `foo=abc`:
+
+| Property value | Resolved value |
+| --- | --- |
+| `${foo}` | `abc` |
+| `$${foo}` | `${foo}` |
+| `$$${foo}` | `$abc` |
+| `$$$${foo}` | `$${foo}` |
+| `$$` | `$` |
+
+A single dollar sign that does not begin a property reference remains unchanged. Escape a literal `${...}`
+expression even if the text between the braces does not name a defined property. For example:
+
+```properties
+arguments=-Djava.library.path=$${LD_LIBRARY_PATH:=}:/opt/lib
+```
+
+This produces `-Djava.library.path=${LD_LIBRARY_PATH:=}:/opt/lib` when the property is substituted into the model.
+An escaped expression remains literal when included through another property's reference as well.
+
+The Discover Domain and Variable Injector tools automatically escape literal dollar signs in values extracted
+from a domain or model when generating variable files. You do not need to add escapes for a discover-then-deploy
+workflow. When writing or editing property values yourself, apply the escaping rules above. These rules apply to
+values in variable files; they do not change literal dollar signs written directly in a model.
+
+Existing variable files containing intended literal `${...}` expressions need to be regenerated or edited to escape
+those expressions. Existing `$${name}` values now produce literal `${name}`; to retain a dollar sign followed by an
+expanded reference, use `$$${name}`. To preserve an existing literal `$$`, write `$$$$`.
+Use generated files with a WDT version that supports this escaping convention.
 
 ### Model semantics
 

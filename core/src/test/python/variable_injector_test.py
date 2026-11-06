@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2024, Oracle and/or its affiliates.
+Copyright (c) 2018, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -97,6 +97,50 @@ class VariableFileHelperTest(BaseTestCase):
             return [line.strip() for line in variable_file if line.strip() and not line.startswith('#')]
         finally:
             variable_file.close()
+
+    def testInjectedArgumentsPreserveLiteralDollarExpressions(self):
+        file_name = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-995-literal-arguments.properties')
+        arguments = '-Djava.library.path=${LD_LIBRARY_PATH:=}:/opt/lib -Dliteral=${foo} -Ddollars=$$'
+        server_start = self._model['topology']['Server']['m2']['ServerStart']
+        server_start['Arguments'] = arguments
+        try:
+            variable_map = self._helper.inject_variables(self._model, {'Server.ServerStart.Arguments': {}})
+            # An existing property with the same name must not cause a literal to be substituted.
+            variable_map['foo'] = 'must-not-replace'
+            self.assertEqual(True, self._helper._write_variables_file(variable_map, file_name, False))
+            loaded = variables.load_variables(file_name)
+            self.assertEqual(arguments, loaded['Server.m2.Arguments'])
+            self.assertEqual(arguments, variable_map['Server.m2.Arguments'])
+            properties = self._read_variable_properties(file_name)
+            self.assertEqual(True, '$${LD_LIBRARY_PATH' in '\n'.join(properties))
+            variables.substitute(self._model, loaded, self._model_context)
+            self.assertEqual(arguments, server_start['Arguments'])
+
+            # Loading for update resolves escapes. Rewriting must restore them exactly once.
+            append, updated = variable_injector._load_variable_file(file_name, variable_injector.VARIABLE_FILE_UPDATE)
+            self.assertEqual(True, self._helper._write_variables_file(updated, file_name, append))
+            self.assertEqual(arguments, variables.load_variables(file_name)['Server.m2.Arguments'])
+            self.assertEqual(properties, self._read_variable_properties(file_name))
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
+
+    def testAppendingLiteralValuesPreservesExistingReferences(self):
+        file_name = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-995-append-literals.properties')
+        try:
+            output = open(file_name, 'w')
+            output.write('foo=abc\nreference=${foo}\nliteral=$${missing}\n')
+            output.close()
+            self.assertEqual(True, self._helper._write_variables_file({'new': '${foo} $$'}, file_name, True))
+            loaded = variables.load_variables(file_name)
+            self.assertEqual('abc', loaded['reference'])
+            self.assertEqual('${missing}', loaded['literal'])
+            self.assertEqual('${foo} $$', loaded['new'])
+            self.assertEqual(True, 'reference=${foo}' in self._read_variable_properties(file_name))
+            self.assertEqual(True, 'literal=$${missing}' in self._read_variable_properties(file_name))
+        finally:
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
     def testSingleVariableReplacement(self):
         BaseTestCase.tearDown(self)

@@ -13,6 +13,12 @@ The Variable Injector Tool uses the default configuration for variable injectors
 
 In addition to variable injector processing, the tool will automatically tokenize any credential attributes found in the model. These variables associated with those attributes will be included in the variable properties file.
 
+The tool automatically escapes literal dollar signs in extracted values when writing the variable properties file,
+so expressions such as `${name}` retain their original text when the file is loaded. When writing or editing property
+values yourself, see
+[References and literal expressions in variable files]({{% relref "/concepts/model#references-and-literal-expressions-in-variable-files" %}})
+for property references, environment tokens, and dollar escaping.
+
 
 ### Parameter table for `injectVariables`
 | Parameter | Definition                                                                                                                                                                                                                                                                                                               | Default |
