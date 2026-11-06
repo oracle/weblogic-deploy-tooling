@@ -23,29 +23,29 @@
     <meta itemprop="description" content="Introspects an existing domain and creates a model file describing the domain and an archive file of the binaries deployed to the domain.">
     <meta itemprop="datePublished" content="2024-05-07T13:30:00-05:00">
     <meta itemprop="dateModified" content="2024-05-07T13:30:00-05:00">
-    <meta itemprop="wordCount" content="3739">
+    <meta itemprop="wordCount" content="3793">
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1793935058" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1793935058" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1793935058" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1794004631" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1794004631" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1794004631" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1793935058";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1794004631";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1793935058" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1794004631" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1793935058" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1793935058" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1793935058" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1793935058" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1793935058" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1794004631" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1794004631" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1794004631" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1794004631" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1794004631" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -224,6 +224,11 @@ model is injected with the token name and property field notation. For example, 
 <code>-variable_file</code> argument is not used, the variable file is created with the same name as the model file,
 with the file extension <code>.properties</code>. As with the archive and model file, each run of the Discover Domain Tool will
 overwrite the contents of an existing variable file with the values from the current run.</p>
+<p>Literal dollar signs in extracted values are escaped automatically in the generated variable file. For example,
+<code>${LD_LIBRARY_PATH:=}</code> in server startup arguments is written as <code>$${LD_LIBRARY_PATH:=}</code> and restored to its
+original text when WDT loads the file. See
+<a href="/weblogic-deploy-tooling/concepts/model/#references-and-literal-expressions-in-variable-files">References and literal expressions in variable files</a>
+for the rules to use when manually editing these values.</p>
 <p>Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The
 final step is validation, which validates the contents of the model, archive and variable file. If the validation is
 successful, the model is persisted. For more information on these three topics, see:</p>
@@ -786,8 +791,8 @@ environment, what you are doing, and what is happening.</p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1793935058" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1794004631" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

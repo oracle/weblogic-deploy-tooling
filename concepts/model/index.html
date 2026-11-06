@@ -23,29 +23,29 @@
     <meta itemprop="description" content="The section that discusses the high-level concepts of the WDT model.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="3169">
+    <meta itemprop="wordCount" content="3560">
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1793935058" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1793935058" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1793935058" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1794004631" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1794004631" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1794004631" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1793935058";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1794004631";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1793935058" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1794004631" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1793935058" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1793935058" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1793935058" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1793935058" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1793935058" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1794004631" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/all.min.css?1794004631" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1794004631" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1794004631" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1794004631" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -123,6 +123,7 @@
         <li><a href="#top-level-model-sections">Top-level model sections</a></li>
         <li><a href="#model-names">Model names</a></li>
         <li><a href="#model-tokens">Model tokens</a></li>
+        <li><a href="#references-and-literal-expressions-in-variable-files">References and literal expressions in variable files</a></li>
         <li><a href="#model-semantics">Model semantics</a></li>
         <li><a href="#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
         <li><a href="#using-multiple-models">Using multiple models</a></li>
@@ -173,6 +174,7 @@
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#simple-example">Simple example</a></li>
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#model-names">Model names</a></li>
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#model-tokens">Model tokens</a></li>
+<li><a href="/weblogic-deploy-tooling/concepts/model/index.html#references-and-literal-expressions-in-variable-files">References and literal expressions in variable files</a></li>
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#model-semantics">Model semantics</a></li>
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
 <li><a href="/weblogic-deploy-tooling/concepts/model/index.html#using-multiple-models">Using multiple models</a></li>
@@ -313,7 +315,9 @@ Oracle Java Cloud Service, service provisioning does not allow the provisioning 
 For example, if the application being deployed immediately following provisioning needs to tweak the Server Start
 arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and
 populate the variable file with the provisioned server names dynamically between provisioning and application
-deployment.</p>
+deployment.
+See <a href="/weblogic-deploy-tooling/concepts/model/index.html#references-and-literal-expressions-in-variable-files">References and literal expressions in variable files</a>
+for references between properties and dollar escaping within their values.</p>
 <p><strong>File tokens</strong> are declared with the syntax <code>@@FILE:&lt;filename&gt;@@</code>. This type of token is similar to a variable token,
 but it references a single value that is read from the specified file. For example, the model may reference a password
 attribute as follows:</p>
@@ -369,6 +373,64 @@ directory location.  The supported tokens are:</p>
 <li><code>@@PWD@@</code>         - The current working directory from which the tool was invoked.</li>
 <li><code>@@TMP@@</code>         - The location of the temporary directory, as controlled by the <code>java.io.tmpdir</code> system property.</li>
 </ul>
+<h3 id="references-and-literal-expressions-in-variable-files">References and literal expressions in variable files<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<p>Starting with WDT 4.4.5, <code>${name}</code> in a variable properties file refers to another property in the supplied variable
+file or files.
+It does <strong>not</strong> refer to an operating system environment variable. To use an environment variable, use the
+<code>@@ENV:&lt;name&gt;@@</code> token instead. The model itself uses <code>@@PROP:&lt;name&gt;@@</code> to read a property value.</p>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-properties" data-lang="properties"><span style="display:flex;"><span><span style="color:#a6e22e">base</span><span style="color:#f92672">=</span><span style="color:#e6db74">/opt/app</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">library</span><span style="color:#f92672">=</span><span style="color:#e6db74">${base}/lib</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">home</span><span style="color:#f92672">=</span><span style="color:#e6db74">@@ENV:HOME@@</span></span></span></code></pre></div>
+<p>Here, <code>library</code> resolves to <code>/opt/app/lib</code>. The <code>home</code> value contains an environment token, which is resolved
+when substituted into the model. A referenced property can be defined before or after the reference. When multiple
+variable files are supplied, WDT merges them before resolving references; values in later files override the same
+keys in earlier files. References can themselves contain references. A missing referenced property or a reference
+cycle causes an error when the variable files are loaded.</p>
+<p>To preserve a literal dollar sign in a property value, write <code>$$</code>. WDT processes dollar escapes and property
+references from left to right, without processing the resulting text again. For example, with <code>foo=abc</code>:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Property value</th>
+          <th>Resolved value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>${foo}</code></td>
+          <td><code>abc</code></td>
+      </tr>
+      <tr>
+          <td><code>$${foo}</code></td>
+          <td><code>${foo}</code></td>
+      </tr>
+      <tr>
+          <td><code>$$${foo}</code></td>
+          <td><code>$abc</code></td>
+      </tr>
+      <tr>
+          <td><code>$$$${foo}</code></td>
+          <td><code>$${foo}</code></td>
+      </tr>
+      <tr>
+          <td><code>$$</code></td>
+          <td><code>$</code></td>
+      </tr>
+  </tbody>
+</table>
+<p>A single dollar sign that does not begin a property reference remains unchanged. Escape a literal <code>${...}</code>
+expression even if the text between the braces does not name a defined property. For example:</p>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-properties" data-lang="properties"><span style="display:flex;"><span><span style="color:#a6e22e">arguments</span><span style="color:#f92672">=</span><span style="color:#e6db74">-Djava.library.path=$${LD_LIBRARY_PATH:=}:/opt/lib</span></span></span></code></pre></div>
+<p>This produces <code>-Djava.library.path=${LD_LIBRARY_PATH:=}:/opt/lib</code> when the property is substituted into the model.
+An escaped expression remains literal when included through another property&rsquo;s reference as well.</p>
+<p>The Discover Domain and Variable Injector tools automatically escape literal dollar signs in values extracted
+from a domain or model when generating variable files. You do not need to add escapes for a discover-then-deploy
+workflow. When writing or editing property values yourself, apply the escaping rules above. These rules apply to
+values in variable files; they do not change literal dollar signs written directly in a model.</p>
+<p>Existing variable files containing intended literal <code>${...}</code> expressions need to be regenerated or edited to escape
+those expressions. Existing <code>$${name}</code> values now produce literal <code>${name}</code>; to retain a dollar sign followed by an
+expanded reference, use <code>$$${name}</code>. To preserve an existing literal <code>$$</code>, write <code>$$$$</code>.
+Use generated files with a WDT version that supports this escaping convention.</p>
 <h3 id="model-semantics">Model semantics<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this
 as painless as possible.  For example, the <code>Target</code> attribute on resources can have zero or more clusters and/or
@@ -649,8 +711,8 @@ The Model Help Tool has used model sample format, by default, since release 1.9.
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1793935058" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1793935058" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1794004631" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1794004631" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
