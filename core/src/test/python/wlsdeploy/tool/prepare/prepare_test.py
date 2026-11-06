@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -25,6 +25,7 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import variables
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -133,6 +134,39 @@ class PrepareTestCase(BaseTestCase):
 
     def testPrepareForeignProperties(self):
         self._prepare_foreign_properties(False)
+
+    def testPrepareEscapedVariableValues(self):
+        model_file = os.path.join(self.MODELS_DIR, 'model-1.yaml')
+        variable_file = os.path.join(self.PREPARE_OUTPUT_DIR, 'escaped-input.properties')
+        output_dir = os.path.join(self.PREPARE_OUTPUT_DIR, 'escaped-output')
+        self._establish_directory(output_dir)
+        source_variables = string_utils.load_properties(os.path.join(self.MODELS_DIR, 'variables-1.properties'))
+        # The helper property is removed by cleanup; its escaped value must survive in prefix.
+        source_variables['prefix'] = '${literal}'
+        source_variables['literal'] = '$${LD_LIBRARY_PATH:=} $$$$'
+        source_variables['ds.user.name'] = '$${user} $$'
+        variables.write_variables('PrepareModelTestCase', source_variables, variable_file)
+
+        context = ModelContext('PrepareModelTestCase', {
+            '-oracle_home': '/oracle', '-model_file': model_file, '-variable_file': variable_file,
+            '-output_dir': output_dir, '-target': 'test-1'
+        })
+        preparer = ModelPreparer(model_file, context, output_dir)
+        preparer.prepare_models()
+
+        output_variables_file = os.path.join(output_dir, 'escaped-input.properties')
+        raw_variables = string_utils.load_properties(output_variables_file)
+        self.assertEqual('$${LD_LIBRARY_PATH:=} $$$$', raw_variables['prefix'])
+        self._no_dictionary_key(raw_variables, 'literal')
+        self._no_dictionary_key(raw_variables, 'ds.user.name')
+        loaded = variables.load_variables(output_variables_file)
+        self.assertEqual('${LD_LIBRARY_PATH:=} $$', loaded['prefix'])
+        model = FileToPython(os.path.join(output_dir, 'model-1.yaml'), use_ordering=True).parse()
+        variables.substitute(model, loaded, context)
+        self._match('${LD_LIBRARY_PATH:=} $$-z', model, TOPOLOGY, SERVER, 'ms1', 'Notes')
+
+        results = FileToPython(os.path.join(output_dir, 'results.json'), use_ordering=True).parse()
+        self._match('${user} $', results['secrets'], 'jdbc-ds1', 'keys', 'username')
 
     def testPrepareEncryptedForeignProperties(self):
         self._prepare_foreign_properties(True)

@@ -68,6 +68,12 @@ If [variable injection]({{% relref "/userguide/tools-config/variable_injectors.m
 with the file extension `.properties`. As with the archive and model file, each run of the Discover Domain Tool will
 overwrite the contents of an existing variable file with the values from the current run.
 
+Literal dollar signs in extracted values are escaped automatically in the generated variable file. For example,
+`${LD_LIBRARY_PATH:=}` in server startup arguments is written as `$${LD_LIBRARY_PATH:=}` and restored to its
+original text when WDT loads the file. See
+[References and literal expressions in variable files]({{% relref "/concepts/model#references-and-literal-expressions-in-variable-files" %}})
+for the rules to use when manually editing these values.
+
 Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The
 final step is validation, which validates the contents of the model, archive and variable file. If the validation is
 successful, the model is persisted. For more information on these three topics, see:

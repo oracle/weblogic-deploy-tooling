@@ -630,7 +630,12 @@ class VariableInjector(object):
         written = False
         if variables_dictionary is not None:
             try:
-                variables.write_sorted_variables(self.__program_name, variables_dictionary, variables_file_name, append)
+                # Cache values came from the model/domain or have already been resolved on load.
+                # Escape only these values; appended properties retain their existing file syntax.
+                escaped_variables = OrderedDict()
+                for key in variables_dictionary:
+                    escaped_variables[key] = variables.escape_variable_value(variables_dictionary[key])
+                variables.write_sorted_variables(self.__program_name, escaped_variables, variables_file_name, append)
                 written = True
             except VariableException, ve:
                 _logger.warning('WLSDPLY-19507', variables_file_name, ve.getLocalizedMessage(), class_name=_class_name,
