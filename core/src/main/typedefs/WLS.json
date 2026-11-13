@@ -13,7 +13,8 @@
         "12.2.1.4": "WLS_12CR2",
         "14.1":     "WLS_14",
         "15.1":     "WLS_15",
-        "26.1":     "WLS_26"
+        "26.1":     "WLS_26",
+        "27.1":     "WLS_27"
     },
     "definitions": {
         "WLS_11G": {
@@ -57,6 +58,14 @@
             "isJrfInstalled": false
         },
         "WLS_26": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ ],
+            "rcuSchemas": [ ],
+            "isJrfInstalled": false
+        },
+        "WLS_27": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ ],
             "customExtensionTemplates": [ ],

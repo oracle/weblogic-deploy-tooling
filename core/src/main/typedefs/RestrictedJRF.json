@@ -11,7 +11,10 @@
         "12.2.1.4": "RJRF_12CR2",
         "12.2.1.5": "RJRF_12CR2",
         "14.1.1":   "NOT_SUPPORTED",
-        "14.1.2":   "RJRF_14"
+        "14.1.2":   "RJRF_14",
+        "15.1.1":   "NOT_SUPPORTED",
+        "26.1":     "NOT_SUPPORTED",
+        "27.1":     "RJRF_27"
     },
     "definitions": {
         "RJRF_12CR2_FIRST": {
@@ -39,8 +42,16 @@
             "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
             "rcuSchemas": [ ],
             "isJrfInstalled": true
+        },
+        "RJRF_27": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
+            "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
+            "rcuSchemas": [ ],
+            "isJrfInstalled": true
         }
-
     },
     "discover-filters": {
         "/Application": [
