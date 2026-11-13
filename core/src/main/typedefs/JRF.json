@@ -13,7 +13,10 @@
         "12.2.1.4": "JRF_12CR2_LAST",
         "12.2.1.5": "JRF_12CR2_LAST",
         "14.1.1" :  "NOT_SUPPORTED",
-        "14.1.2":   "JRF_14"
+        "14.1.2":   "JRF_14",
+        "15.1.1" :  "NOT_SUPPORTED",
+        "26.1" :    "NOT_SUPPORTED",
+        "27.1":     "JRF_27"
     },
     "definitions": {
         "JRF_11G" : {
@@ -97,6 +100,20 @@
             "isJrfInstalled": true
         },
         "JRF_14": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [
+                "Oracle JRF",
+                "Oracle JRF WebServices Asynchronous services",
+                "Oracle WSM Policy Manager",
+                "Oracle Enterprise Manager"
+            ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
+            "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ],
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
+        },
+        "JRF_27": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [
                 "Oracle JRF",
