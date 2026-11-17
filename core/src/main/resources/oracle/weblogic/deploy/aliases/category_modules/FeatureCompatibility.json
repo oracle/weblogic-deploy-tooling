@@ -32,6 +32,10 @@
             { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "I${iop:IOP}UnauthenticatedServiceContextValueTypeFilteringEnabled", "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" }
         ],
         "JaxwsRejectUnknownSeiOperationsEnabled": [
+            { "version": "[12.2.1.4.0.261025,14.1.1)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            { "version": "[14.1.1.0.0.261025,14.1.2)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            { "version": "[14.1.2.0.0.261025,15.1.1)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            { "version": "[15.1.1.0.0.261025,26.1)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "${Jaxws:JAXWS}RejectUnknown${Sei:SEI}OperationsEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" }
         ],
         "JndiAdditionalFactoriesAllowListsEnabled": [
@@ -76,6 +80,10 @@
             { "version": "[26.1,)",                    "wlst_mode": "both",   "wlst_name": "SerializedWorkContextMaximumSize",                                  "wlst_path": "WP001", "default_value": 65535, "wlst_type": "integer" }
         ],
         "StrictClusterCompatibilityEnabled": [
+            { "version": "[12.2.1.4.0.261025,14.1.1)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" },
+            { "version": "[14.1.1.0.0.261025,14.1.2)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" },
+            { "version": "[14.1.2.0.0.261025,15.1.1)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" },
+            { "version": "[15.1.1.0.0.261025,26.1)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" },
             { "version": "[26.1,)", "wlst_mode": "both", "wlst_name": "StrictClusterCompatibilityEnabled", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "get_method": "${LSA:GET}" }
         ],
         "StrictReplicationAuthorizationEnabled": [
