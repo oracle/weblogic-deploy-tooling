@@ -8,6 +8,14 @@
 - Bind a caught exception with `except SomeError, error:` rather than `except SomeError as error:`. To catch multiple types, use a tuple: `except (FirstError, SecondError), error:`. The `as` form was added in Python 2.6, and a comma without parentheses binds the exception instead of listing types.
 - Core Python tests require WLST: set `WLST_DIR` or Maven's `unit-test-wlst-dir` property to the directory containing `wlst.sh` (or `wlst.cmd`). With JDK 17 and WLST configured, run `mvn -pl core test`. Maven's `-Dtest=...` selects Java tests; the WLST plugin still runs its Python suite.
 
+## PyOrderedDict Portability and Review
+
+- In WLST Python, avoid `.get()` and `.values()` on WDT's `oracle.weblogic.deploy.util.PyOrderedDict`, including variables that may contain model-loader dictionaries. Apply this rule across supported Jython versions even when a call works on the older test runtime.
+- Use `dictionary_utils.get_element(mapping, key, default_value)` for lookups with a fallback, and `getValues()` for ordered values from a `PyOrderedDict`. Membership checks and indexing are also supported. Ordinary Python `dict`, Java `Properties`, and WLST helper methods named `get` are not affected by this restriction.
+- Newer Jython can replace these Python-visible methods with Java Map adapters that dereference a null internal Java proxy. The dictionary and lookup arguments can all be valid. A Java override or guard may be bypassed; changing arguments or adding a guard inside the override does not fix that dispatch problem. Preserve internal Java `get()` calls used by `PyOrderedDict` indexing and `pop()`.
+- During review, inspect changed `.get()` and `.values()` calls and trace their receiver types through callers and producers. Include related deployment, discovery, prepare-model, and credential-handling paths when model dictionaries flow through them; method names alone do not establish whether a call is affected.
+- Regression tests for model-dictionary paths must exercise `PyOrderedDict` inputs, not only native Python dictionary literals. Validate relevant operations on a newer supported WLST runtime as well as the legacy baseline: passing the Jython 2.2.1 suite alone does not detect this adapter failure. For credential paths, verify explicit-key precedence, version-dependent behavior, and preservation of model values where the operation promises not to mutate them.
+
 ## Jira
 
 - This repository's Jira issues use the `WDT` project at `https://jira.oraclecorp.com/jira/browse/WDT-<number>`.

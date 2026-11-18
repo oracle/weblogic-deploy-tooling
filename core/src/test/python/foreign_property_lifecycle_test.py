@@ -2,6 +2,8 @@
 Copyright (c) 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -150,6 +152,34 @@ class ForeignPropertyLifecycleTest(BaseTestCase):
         self.context.version = '14.1.2.0.0'
         nodes = {'Key': 'vendor.secret.encrypted', 'Value': self.ciphertext}
         self.assertEqual(self.ciphertext, deployer._decrypt_jndi_property('NO_NAME_0', nodes)['Value'])
+
+    def test_jms_deployment_with_ordered_model_dictionaries(self):
+        deployer = JmsResourcesDeployer.__new__(JmsResourcesDeployer)
+        deployer.aliases = self.aliases
+        deployer.model_context = self.context
+        for version in ['14.1.2.0.0', '26.1.0.0.0']:
+            self.context.version = version
+            for instance_name, key in [('bar', 'bar'), ('NO_NAME_0', 'vendor.secret.encrypted'),
+                                       ('vendor.secret.encrypted', 'vendor.plain'),
+                                       ('vendor.secret.encrypted', None)]:
+                nodes = OrderedDict()
+                if key is not None:
+                    nodes['Key'] = key
+                nodes['Value'] = self.ciphertext
+                expected = self.ciphertext
+                if version == '26.1.0.0.0' and (key == 'vendor.secret.encrypted' or key is None):
+                    expected = 'original-marker'
+                result = deployer._decrypt_jndi_property(instance_name, nodes)
+                self.assertEqual(expected, result['Value'])
+                self.assertEqual(self.ciphertext, nodes['Value'])
+                self.assertEqual(nodes.keys(), result.keys())
+
+        nodes = OrderedDict()
+        nodes['Key'] = 'bar'
+        nodes['Value'] = 'bazz'
+        self.assertEqual('bazz', deployer._decrypt_jndi_property('bar', nodes)['Value'])
+        del nodes['Value']
+        self.assertEqual(['Key'], deployer._decrypt_jndi_property('bar', nodes).keys())
 
     def test_jms_ordinary_and_older_version_values_are_not_tokenized(self):
         injector = CredentialInjector('test', self.context, self.aliases)
