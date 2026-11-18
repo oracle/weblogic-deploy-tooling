@@ -440,9 +440,17 @@ var relearn_searchindex = [
     "uri": "/weblogic-deploy-tooling/userguide/tools/verify_ssh/index.html"
   },
   {
-    "breadcrumb": "WebLogic Deploy Tooling",
+    "breadcrumb": "WebLogic Deploy Tooling \u003e Release Notes",
     "content": "Changes in Release 4.4.8 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes #1932 - Added support for November 2026 CSPUs. Bug Fixes #1930 - Fixed an issue with handling string with ${...} that were not referring to WDT placeholders. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.\nSEVERE Messages: 1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC",
     "description": "Changes in Release 4.4.8 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes #1932 - Added support for November 2026 CSPUs. Bug Fixes #1930 - Fixed an issue with handling string with ${...} that were not referring to WDT placeholders. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.",
+    "tags": [],
+    "title": "Release 4.4.8",
+    "uri": "/weblogic-deploy-tooling/release-notes/release-4.4.8/index.html"
+  },
+  {
+    "breadcrumb": "WebLogic Deploy Tooling",
+    "content": "Changes in Release 4.4.9 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1933 - Fixed an issue with ForeignServer JNDIProperty handling that was causing a NullPointerException. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.\nSEVERE Messages: 1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC",
+    "description": "Changes in Release 4.4.9 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None\nOther Changes None\nBug Fixes #1933 - Fixed an issue with ForeignServer JNDIProperty handling that was causing a NullPointerException. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.",
     "tags": [],
     "title": "Release Notes",
     "uri": "/weblogic-deploy-tooling/release-notes/index.html"

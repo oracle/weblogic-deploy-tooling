@@ -3,11 +3,18 @@
   <channel>
     <title>Release Notes :: WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.html</link>
-    <description>Changes in Release 4.4.8 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes #1932 - Added support for November 2026 CSPUs. Bug Fixes #1930 - Fixed an issue with handling string with ${...} that were not referring to WDT placeholders. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
+    <description>Changes in Release 4.4.9 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes None&#xA;Bug Fixes #1933 - Fixed an issue with ForeignServer JNDIProperty handling that was causing a NullPointerException. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate>
     <atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Release 4.4.8</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.8/index.html</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.8/index.html</guid>
+      <description>Changes in Release 4.4.8 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes #1932 - Added support for November 2026 CSPUs. Bug Fixes #1930 - Fixed an issue with handling string with ${...} that were not referring to WDT placeholders. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895. Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
+    </item>
     <item>
       <title>Release 4.4.7</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.7/index.html</link>
