@@ -6,7 +6,7 @@ pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.4.8
+### Changes in Release 4.4.9
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,10 +17,10 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1932 - Added support for November 2026 CSPUs.
+None
 
 #### Bug Fixes
-- #1930 - Fixed an issue with handling string with `${...}` that were not referring to WDT placeholders.
+- #1933 - Fixed an issue with `ForeignServer` `JNDIProperty` handling that was causing a `NullPointerException`.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
